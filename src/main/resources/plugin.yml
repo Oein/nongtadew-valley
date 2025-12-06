@@ -1,0 +1,5 @@
+name: nong-jang
+version: '1.0-SNAPSHOT'
+main: kr.oein.nongJang.NongJang
+api-version: '1.21'
+depend: [CommandAPI]
