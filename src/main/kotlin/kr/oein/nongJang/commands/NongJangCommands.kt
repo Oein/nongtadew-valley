@@ -60,7 +60,7 @@ object NongJangCommands {
                     var t3r = plugin!!.chunkManager.T3_radius
                     for (x in -t3r..t3r) {
                         for (z in -t3r..t3r) {
-                            plugin!!.logger.info { "Preloading chunks (${(x + t3r) * (2 * t3r) + z + t3r} / ${t3r * t3r * 4})" }
+                            plugin!!.logger.info { "Preloading chunks (${(x + t3r) * (2 * t3r + 1) + z + t3r} / ${(t3r * 2 + 1) * (t3r * 2 + 1)})" }
                             var chunk = world.getChunkAt(x, z)
                             if (!chunk.isLoaded) {
                                 chunk.load()

@@ -14,7 +14,7 @@ class PurchaseNongJangGUI(val nongJang: NongJang, val player: Player, val center
     val viewWidth = 9 - 2
     val viewHeight = 5 - 2
 
-    val worldRadius = 128
+    val worldRadius = nongJang.chunkManager.T3_radius * 2 + 1
 
     override fun createInventory(): Inventory {
         return Bukkit.createInventory(null, 5 * 9, "농장 구입하기")
@@ -308,7 +308,9 @@ class PurchaseNongJangGUI(val nongJang: NongJang, val player: Player, val center
 
         for(x in -viewWidth/2 until viewWidth/2 + 1) {
             for(y in -viewHeight/2 until viewHeight/2 + 1) {
-                val slot = ((y + viewHeight/2 + 1) * 9) + (x + viewWidth/2 + 1)
+                var slot = ((y + viewHeight/2 + 1) * 9) + (x + viewWidth/2 + 1)
+                val yRevSlot = ((-y + viewHeight/2 + 1) * 9) + (x + viewWidth/2 + 1)
+                slot = yRevSlot
                 val worldX = centerX + x
                 val worldY = centerY + y
                 val owner = nongJang.chunkManager.getOwner(worldX, worldY)
