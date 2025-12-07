@@ -18,7 +18,7 @@ class ShiftFGUI(val nongJang: NongJang): InventoryGUI() {
 
     override fun decorate(player: Player?) {
         // set 11 to grass block
-        this.addButton(11,
+        this.addButton(10,
             InventoryButton()
                 .creator {
                     val itemStack = ItemStack(Material.GRASS_BLOCK)
@@ -35,13 +35,16 @@ class ShiftFGUI(val nongJang: NongJang): InventoryGUI() {
                         p.closeInventory()
                         val world = Bukkit.getWorld("world")
                         if (world != null) {
-                            p.teleport(world.spawnLocation)
+                            val randXApd = (Math.random() * 5000) - 2500
+                            val randZApd = (Math.random() * 5000) - 2500
+                            val spawnLocation = world.getHighestBlockAt(randXApd.toInt(), randZApd.toInt()).location.add(0.0, 1.0, 0.0)
+                            p.teleport(spawnLocation)
                         }
                     }
                 }
         )
 
-        this.addButton(13,
+        this.addButton(12,
             InventoryButton()
                 .creator {
                     val itemStack = ItemStack(Material.VILLAGER_SPAWN_EGG)
@@ -61,7 +64,7 @@ class ShiftFGUI(val nongJang: NongJang): InventoryGUI() {
                     }
                 }
         )
-        this.addButton(15,
+        this.addButton(14,
             InventoryButton()
                 .creator {
                     val itemStack = ItemStack(Material.BIRCH_SIGN)
@@ -77,6 +80,28 @@ class ShiftFGUI(val nongJang: NongJang): InventoryGUI() {
                     if(p != null) {
                         p.closeInventory()
                         val gui = PurchaseNongJangGUI(nongJang, p, 0, 0)
+                        nongJang.guiManager.openGUI(gui, p)
+                    }
+                }
+        )
+
+
+        this.addButton(16,
+            InventoryButton()
+                .creator {
+                    val itemStack = ItemStack(Material.EMERALD)
+                    val meta = itemStack.itemMeta
+                    meta?.customName(
+                        Component.text("상점", NamedTextColor.GREEN)
+                    )
+                    itemStack.itemMeta = meta
+                    itemStack
+                }
+                .consumer { event ->
+                    val p = event?.let { it.whoClicked as Player }
+                    if(p != null) {
+                        p.closeInventory()
+                        val gui = Shop(nongJang)
                         nongJang.guiManager.openGUI(gui, p)
                     }
                 }

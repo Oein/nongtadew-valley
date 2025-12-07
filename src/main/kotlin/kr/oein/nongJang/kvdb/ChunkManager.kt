@@ -203,6 +203,17 @@ class ChunkManager(val nj: NongJang) {
         return soilScope.get(key) as Int?
     }
 
+    fun getChunkData(x: Int, z: Int): Map<String, Int?> {
+        val temperature = getTemperature(x, z)
+        val humidity = getHumidity(x, z)
+        val soil = getSoil(x, z)
+        return mapOf(
+            "temperature" to temperature,
+            "humidity" to humidity,
+            "soil" to soil
+        )
+    }
+
     val moneyManager = nj.moneyManager
     fun getPrice(x: Int, z: Int): Long? {
         val tier = getTier(x, z)

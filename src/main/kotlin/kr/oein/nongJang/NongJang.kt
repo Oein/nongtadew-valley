@@ -8,7 +8,7 @@ import kr.oein.nongJang.kvdb.KVDB
 import kr.oein.nongJang.kvdb.MoneyManager
 import kr.oein.nongJang.scoreboard.Scoreboard
 import kr.oein.nongJang.shiftf.ShiftF
-import kr.oein.nongJang.utils.ChorusFruitDisable
+import kr.oein.nongJang.utils.BlockInteraction
 import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -24,7 +24,7 @@ class NongJang : JavaPlugin() {
         Bukkit.getPluginManager().registerEvents(guiListener, this)
         Bukkit.getPluginManager().registerEvents(ShiftF(this), this)
         Bukkit.getPluginManager().registerEvents(Scoreboard(this), this)
-        Bukkit.getPluginManager().registerEvents(ChorusFruitDisable(this), this)
+        Bukkit.getPluginManager().registerEvents(BlockInteraction(this), this)
 
         saveDefaultConfig()
         // Register commands and ensure the nong-jang world after the server has finished loading worlds

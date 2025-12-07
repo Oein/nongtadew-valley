@@ -21,25 +21,20 @@ class Scoreboard: Listener {
             Component.text("농타듀벨리", NamedTextColor.GREEN)
         )
         objective.displaySlot = org.bukkit.scoreboard.DisplaySlot.SIDEBAR
-        objective.numberFormat(NumberFormat.blank())
-
-        val score = objective.getScore("welcome")
-        score.score = 1
-
-        score.customName(
-            Component.text("환영합니다, ").append {
-                Component.text(player.name, NamedTextColor.YELLOW)
-            }
-        )
 
         val moneyScore = objective.getScore("money")
         moneyScore.customName(
-            Component.text("보유 금액: ").append {
-                val money = nj.moneyManager.getMoney(player)
-                Component.text("${money}원", NamedTextColor.GOLD)
-            }
+            Component.text("보유 금액 ")
         )
-        moneyScore.score = 0
+
+        val money = nj.moneyManager.getMoney(player)
+
+        moneyScore.numberFormat(
+            NumberFormat.fixed(
+                Component.text("${money}원", NamedTextColor.GOLD)
+            )
+        )
+        moneyScore.score = 1000
 
         player.scoreboard = board
     }
@@ -55,12 +50,73 @@ class Scoreboard: Listener {
                 val board = player.scoreboard
                 val objective = board.getObjective("nongjang") ?: continue
                 val moneyScore = objective.getScore("money")
-                moneyScore.customName(
-                    Component.text("보유 금액: ").append {
-                        val money = nj.moneyManager.getMoney(player)
+
+                val money = nj.moneyManager.getMoney(player)
+                moneyScore.numberFormat(
+                    NumberFormat.fixed(
                         Component.text("${money}원", NamedTextColor.GOLD)
-                    }
+                    )
                 )
+
+                val spacerScore = objective.getScore("spacer1")
+                val nongjangNameScore = objective.getScore("nongjangName")
+                val nongjangTempScore = objective.getScore("nongjangTemp")
+                val nongjangSoilScore = objective.getScore("nongjangSoil")
+                val nongjangWaterScore = objective.getScore("nongjangWater")
+
+                if(player.world == nj.njCommands.nongjangWorld) {
+                    spacerScore.score = 905
+                    nongjangNameScore.score = 904
+                    nongjangTempScore.score = 903
+                    nongjangSoilScore.score = 902
+                    nongjangWaterScore.score = 901
+
+                    spacerScore.customName(Component.text(" "))
+                    spacerScore.numberFormat(NumberFormat.blank())
+                    val playerPos = player.location
+                    val chunkX = playerPos.x.toInt() shr 4
+                    val chunkZ = playerPos.z.toInt() shr 4
+
+                    val chunkData = nj.chunkManager.getChunkData(chunkX, chunkZ)
+                    nongjangNameScore.customName(
+                        Component.text("농장 ")
+                    )
+                    nongjangNameScore.numberFormat(
+                        NumberFormat.fixed(
+                            Component.text("($chunkX, $chunkZ)", NamedTextColor.GREEN)
+                        )
+                    )
+                    nongjangTempScore.customName(
+                        Component.text("현재 온도 ")
+                    )
+                    nongjangTempScore.numberFormat(
+                        NumberFormat.fixed(
+                            Component.text("${chunkData["temperature"]}'C", NamedTextColor.AQUA)
+                        )
+                    )
+                    nongjangSoilScore.customName(
+                        Component.text("비옥도 ")
+                    )
+                    nongjangSoilScore.numberFormat(
+                        NumberFormat.fixed(
+                            Component.text("${chunkData["soil"]}%", NamedTextColor.BLUE)
+                        )
+                    )
+                    nongjangWaterScore.customName(
+                        Component.text("습도 ")
+                    )
+                    nongjangWaterScore.numberFormat(
+                        NumberFormat.fixed(
+                            Component.text("${chunkData["humidity"]}%", NamedTextColor.DARK_AQUA)
+                        )
+                    )
+                } else {
+                    spacerScore.resetScore()
+                    nongjangNameScore.resetScore()
+                    nongjangTempScore.resetScore()
+                    nongjangSoilScore.resetScore()
+                    nongjangWaterScore.resetScore()
+                }
             }
         }, 0L, 5L) // 0.25초마다 갱신
     }
