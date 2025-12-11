@@ -12,6 +12,7 @@ import org.bukkit.event.hanging.HangingPlaceEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.components.CustomModelDataComponent
 import org.bukkit.persistence.PersistentDataType
+import kotlin.math.min
 
 enum class GrowingLevel {
     SEED,
@@ -27,7 +28,7 @@ class Grow(val nj: NongJang): Listener {
         )
     }
     fun handleChunk(x: Int, z: Int) {
-        broadcast("===== Handle chunk at ($x, $z) =====")
+        broadcast("  # Handle chunk at ($x, $z)")
         for(xApd in 0..15) {
             for(zApd in 0..15) {
                 val blockX = (x shl 4) + xApd
@@ -44,13 +45,45 @@ class Grow(val nj: NongJang): Listener {
                 // print nearby item frames
                 if(nearbyItemFrame.isEmpty()) continue
 
-                broadcast("Found farmable block at ${highestBlock.x}, ${highestBlock.y}, ${highestBlock.z}")
-                broadcast("Nearby item frames: ${nearbyItemFrame.size}")
+                var grownLevel = nearbyItemFrame.first().item.persistentDataContainer.get(namedkeys.grownLevel, PersistentDataType.DOUBLE) ?: continue
+                var shitLevel = nearbyItemFrame.first().item.persistentDataContainer.get(namedkeys.shitLevel, PersistentDataType.DOUBLE) ?: continue
+                val productType = nearbyItemFrame.first().item.persistentDataContainer.get(namedkeys.productType, PersistentDataType.STRING) ?: continue
+
+                grownLevel += 25.0
+
+                grownLevel = min(grownLevel, 100.0)
+                shitLevel = min(shitLevel, 100.0)
+
+                val newGrowState = when {
+                    grownLevel >= 100.0 -> {
+                        GrowingLevel.GROWN
+                    }
+                    grownLevel >= 50.0 -> {
+                        GrowingLevel.GROWING
+                    }
+                    else -> {
+                        GrowingLevel.SEED
+                    }
+                }
+
+                broadcast("   Found farmable block at (${highestBlock.x}, ${highestBlock.y}, ${highestBlock.z})")
+                broadcast("    - Grown level: $grownLevel")
+                broadcast("    - Shit Level: $shitLevel")
+                broadcast("    - Grown State: $newGrowState")
+
+                nearbyItemFrame.first().setItem(
+                    createCBDItem(
+                        productType,
+                        newGrowState,
+                        grownLevel,
+                        shitLevel
+                    )
+                )
             }
         }
     }
     fun handlePlayerGrowth(player: Player) {
-        broadcast("==== Handling growth for player ${player.name} ====")
+        broadcast(" # Handling growth for player ${player.name}")
         val playerChunks = nj.chunkManager.getMyChunks(player)
 
         for(chunk in playerChunks)
@@ -58,7 +91,7 @@ class Grow(val nj: NongJang): Listener {
     }
 
     fun handleGrowth() {
-        broadcast("=== Starting growth handling ===")
+        broadcast("# Starting growth handling")
         for(player in nj.server.onlinePlayers)
             handlePlayerGrowth(player)
     }
@@ -87,7 +120,7 @@ class Grow(val nj: NongJang): Listener {
         return itemStack
     }
 
-    fun createCBDItem(product: String, level: GrowingLevel): ItemStack? {
+    fun createCBDItem(product: String, level: GrowingLevel, grownLevel: Double? = null, shitLevel: Double? = null): ItemStack? {
         val itemStack = ItemStack(Material.DIRT, 1)
         val meta = itemStack.itemMeta
 
@@ -98,11 +131,12 @@ class Grow(val nj: NongJang): Listener {
             GrowingLevel.GROWN -> product.grown_cbd
             GrowingLevel.SHIT -> product.shit_cbd
         }
-        broadcast("CBD $cbd")
         val customModelDataComponent = meta.customModelDataComponent
         customModelDataComponent.strings = listOf(cbd)
         meta.setCustomModelDataComponent(customModelDataComponent)
         meta.persistentDataContainer.set(namedkeys.productType, PersistentDataType.STRING, product.id)
+        meta.persistentDataContainer.set(namedkeys.grownLevel, PersistentDataType.DOUBLE, grownLevel ?: 0.0)
+        meta.persistentDataContainer.set(namedkeys.shitLevel, PersistentDataType.DOUBLE, shitLevel ?: 0.0)
         itemStack.itemMeta = meta
 
         return itemStack
@@ -144,7 +178,5 @@ class Grow(val nj: NongJang): Listener {
         event.block.type = Material.VOID_AIR
         entity.setItem(cbdItem)
         entity.isVisible = false
-
-        broadcast("Placed seed item frame with product type: $productType at ${entity.location.blockX}, ${entity.location.blockY}, ${entity.location.blockZ}")
     }
 }

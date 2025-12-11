@@ -13,4 +13,6 @@ object namedkeys {
         )
     )
     val productType = NamespacedKey("nongjang", "product_type")
+    val grownLevel = NamespacedKey("nongjang", "grown_level")
+    val shitLevel = NamespacedKey("nongjang", "shit_level")
 }
