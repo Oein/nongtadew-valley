@@ -26,6 +26,7 @@ class BlockInteraction(val nj: NongJang): Listener {
     @EventHandler
     fun onPlayerMove(event: PlayerMoveEvent) {
         val player = event.player
+        if(player.isOp) return
         val world = player.world
         if (world == nj.njCommands.nongjangWorld) {
             val pos = player.location
@@ -50,6 +51,7 @@ class BlockInteraction(val nj: NongJang): Listener {
     fun onPlayerOpenChest(event: org.bukkit.event.player.PlayerInteractEvent) {
         if (event.isCancelled) return
         val player = event.player
+        if(player.isOp) return
         val world = player.world
         val block = event.clickedBlock ?: return
         if (world == nj.njCommands.nongjangWorld) {

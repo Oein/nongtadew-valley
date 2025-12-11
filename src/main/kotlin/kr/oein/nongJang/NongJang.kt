@@ -3,6 +3,7 @@ package kr.oein.nongJang
 import kr.oein.interchest.GUIListener
 import kr.oein.interchest.GUIManager
 import kr.oein.nongJang.commands.NongJangCommands
+import kr.oein.nongJang.farm.Grow
 import kr.oein.nongJang.kvdb.ChunkManager
 import kr.oein.nongJang.kvdb.KVDB
 import kr.oein.nongJang.kvdb.MoneyManager
@@ -19,12 +20,14 @@ class NongJang : JavaPlugin() {
     val guiManager = GUIManager()
     val guiListener = GUIListener(guiManager)
     var njCommands = NongJangCommands
+    val grow = Grow(this)
 
     override fun onEnable() {
         Bukkit.getPluginManager().registerEvents(guiListener, this)
         Bukkit.getPluginManager().registerEvents(ShiftF(this), this)
         Bukkit.getPluginManager().registerEvents(Scoreboard(this), this)
         Bukkit.getPluginManager().registerEvents(BlockInteraction(this), this)
+        Bukkit.getPluginManager().registerEvents(grow, this)
 
         saveDefaultConfig()
         // Register commands and ensure the nong-jang world after the server has finished loading worlds

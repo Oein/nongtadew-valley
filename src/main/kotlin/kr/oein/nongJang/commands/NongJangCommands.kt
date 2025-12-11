@@ -2,13 +2,18 @@ package kr.oein.nongJang.commands
 
 import dev.jorel.commandapi.CommandAPICommand
 import dev.jorel.commandapi.CommandPermission
+import dev.jorel.commandapi.arguments.ArgumentSuggestions
+import dev.jorel.commandapi.arguments.StringArgument
 import dev.jorel.commandapi.executors.CommandExecutor
 import kr.oein.nongJang.NongJang
+import kr.oein.nongJang.farm.namedkeys
 import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
 import org.bukkit.GameRule
 import org.bukkit.World
 import org.bukkit.WorldCreator
+import org.bukkit.block.Block
+import org.bukkit.entity.Player
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -206,6 +211,71 @@ object NongJangCommands {
                                 sender.sendMessage(Component.text("Removed debit ₩$amount from ${targetPlayer.name}."))
                             })
                     )
+            )
+            .withSubcommand(
+                CommandAPICommand("grow")
+                    .withPermission(CommandPermission.OP)
+                    .executes(CommandExecutor { sender, _ ->
+                        nj.grow.handleGrowth()
+                        sender.sendMessage { Component.text("Grown handled") }
+                    })
+            )
+            .withSubcommand(
+                CommandAPICommand("hblock")
+                    .withPermission(CommandPermission.OP)
+                    .executes(CommandExecutor { sender, _ ->
+                        if(sender !is Player) {
+                            sender.sendMessage("This command can only be used by players.")
+                            return@CommandExecutor
+                        }
+
+                        val player = sender as Player
+                        val playerPos = player.location
+                        var hblock: Block? = null
+
+                        for (y in 254 downTo 1) {
+                            val checkBlock = player.world.getBlockAt(playerPos.blockX, y, playerPos.blockZ)
+                            // if it is not air
+                            if (checkBlock.type != org.bukkit.Material.AIR) {
+                                // set hblock to this block
+                                hblock = checkBlock
+                                break
+                            }
+                        }
+
+                        if (hblock == null) {
+                            player.sendMessage(Component.text("No HBlock found at your location."))
+                            return@CommandExecutor
+                        }
+
+                        player.sendMessage {
+                            Component.text("HBlock info =====\n")
+                                .append {
+                                    Component.text("Location: (${hblock.location.x.toInt()}, ${hblock.location.y.toInt()}, ${hblock.location.z.toInt()})\n")
+                                }
+                                .append {
+                                    Component.text("Block Type: ${hblock.type}\n")
+                                }
+                        }
+                    })
+            )
+            .withSubcommand(
+                CommandAPICommand("seed")
+                    .withPermission(CommandPermission.OP)
+                    .withArguments(
+                        StringArgument("product")
+                            .replaceSuggestions(ArgumentSuggestions.strings { namedkeys.products.map { it.id }.toTypedArray() })
+                    )
+                    .executes(CommandExecutor { sender, arguments ->
+                        val productName = arguments[0] as String
+                        val seedItem = nj.grow.createSeedItem(productName)
+                        if(sender is Player) {
+                            sender.inventory.addItem(seedItem)
+                            sender.sendMessage(Component.text("Added seed item for product '$productName' to your inventory."))
+                        } else {
+                            sender.sendMessage("This command can only be used by players.")
+                        }
+                    })
             )
             .register()
     }
