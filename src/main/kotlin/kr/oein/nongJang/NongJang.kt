@@ -32,6 +32,7 @@ class NongJang : JavaPlugin() {
         saveDefaultConfig()
         // Register commands and ensure the nong-jang world after the server has finished loading worlds
         njCommands.register(this)
+        grow.scheduleGrowthHandling()
     }
 
     override fun onLoad() {

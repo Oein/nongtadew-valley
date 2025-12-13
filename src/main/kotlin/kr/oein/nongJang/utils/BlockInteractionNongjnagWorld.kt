@@ -6,6 +6,8 @@ import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Material
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
+import org.bukkit.event.block.BlockPistonExtendEvent
+import org.bukkit.event.block.BlockPistonRetractEvent
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent
 import org.bukkit.event.entity.PotionSplashEvent
 import org.bukkit.event.player.PlayerItemConsumeEvent
@@ -83,7 +85,6 @@ class BlockInteraction(val nj: NongJang): Listener {
     fun onPotionSplashEvent(event: PotionSplashEvent) {
         val potion = event.entity
         val world = potion.world
-        nj.logger.info { "EVENT2" }
         if (world == nj.njCommands.nongjangWorld) {
             event.isCancelled = true
         }
@@ -93,7 +94,6 @@ class BlockInteraction(val nj: NongJang): Listener {
     fun areaEffectCloudEvent(event: AreaEffectCloudApplyEvent) {
         val cloud = event.entity
         val world = cloud.world
-        nj.logger.info { "EVENT3" }
         if (world == nj.njCommands.nongjangWorld) {
             event.isCancelled = true
         }
