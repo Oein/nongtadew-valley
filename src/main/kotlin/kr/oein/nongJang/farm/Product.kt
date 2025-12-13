@@ -2,6 +2,7 @@ package kr.oein.nongJang.farm
 
 data class Product(
     val id: String,
+    val name: String? = null,
 
     val seedCbd: String,
     val growingCbd: String,

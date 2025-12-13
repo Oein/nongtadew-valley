@@ -32,6 +32,7 @@ enum class HarvestedLevel {
 }
 
 class Grow(val nj: NongJang): Listener {
+    @Suppress("DEPRECATION")
     fun broadcast(message: String) {
         nj.server.broadcastMessage(
             message
@@ -53,12 +54,12 @@ class Grow(val nj: NongJang): Listener {
             for(zApd in 0..15) {
                 val blockX = (x shl 4) + xApd
                 val blockZ = (z shl 4) + zApd
-                val highestBlock = getHeighestBlock(blockX, blockZ) ?: continue
+                val highestBlock = getHighestBlock(blockX, blockZ) ?: continue
                 if(highestBlock.type != Material.VOID_AIR) continue
 
                 // get nearest item frame
                 val nearbyItemFrames = highestBlock.location.toCenterLocation().getNearbyEntitiesByType(
-                    org.bukkit.entity.ItemFrame::class.java,
+                    ItemFrame::class.java,
                     0.5
                 )
 
@@ -144,7 +145,7 @@ class Grow(val nj: NongJang): Listener {
             handlePlayerGrowth(player)
     }
 
-    fun getHeighestBlock(x: Int, z: Int): Block? {
+    fun getHighestBlock(x: Int, z: Int): Block? {
         nj.njCommands.ensureNongJangWorld() ?: return null
         val world = nj.njCommands.nongjangWorld ?: return null
 
@@ -159,14 +160,27 @@ class Grow(val nj: NongJang): Listener {
     }
 
     fun createSeedItem(product: String): ItemStack {
+        val productClass = productById(product)
+
+        if(productClass == null) {
+            val itemStack = ItemStack(Material.DIRT, 1)
+            val meta = itemStack.itemMeta
+            meta.customName(
+                Component.text("알 수 없는 씨앗 ($product)")
+            )
+            itemStack.itemMeta = meta
+            return itemStack
+        }
+
         // use itemFrame with custom model data as seed
         val itemStack = ItemStack(Material.ITEM_FRAME, 1)
         val meta = itemStack.itemMeta
 
         meta.customModelDataComponent.strings = listOf("seed_$product")
         meta.persistentDataContainer.set(FarmConfig.productType, PersistentDataType.STRING, product)
+
         meta.customName(
-            Component.text("$product 씨앗")
+            Component.text("${productClass.name ?: product} 씨앗")
         )
         itemStack.itemMeta = meta
         return itemStack
@@ -194,31 +208,32 @@ class Grow(val nj: NongJang): Listener {
         return itemStack
     }
 
-    fun createHarvestedItem(product: String, level: HarvestedLevel): ItemStack? {
+    fun createHarvestedItem(id: String, level: HarvestedLevel): ItemStack? {
         val itemStack = ItemStack(Material.DIRT, 1)
         val meta = itemStack.itemMeta
 
-        val product = FarmConfig.products.findLast { it.id == product } ?: return null
+        val productClass = FarmConfig.products.findLast { it.id == id } ?: return null
         val cbd = when (level) {
-            HarvestedLevel.RAW -> product.shitCbd
-            HarvestedLevel.MATURE -> product.grownCbd
-            HarvestedLevel.ROTTEN -> product.shitCbd
+            HarvestedLevel.RAW -> productClass.shitCbd
+            HarvestedLevel.MATURE -> productClass.grownCbd
+            HarvestedLevel.ROTTEN -> productClass.shitCbd
         }
 
         val customModelDataComponent = meta.customModelDataComponent
         customModelDataComponent.strings = listOf(cbd)
         meta.setCustomModelDataComponent(customModelDataComponent)
 
+        val readableName = productClass.name ?: productClass.id
         meta.customName(
             Component.text(
                 when(level) {
-                    HarvestedLevel.RAW -> "들 자란 ${product.id}"
-                    HarvestedLevel.MATURE -> "잘 자란 ${product.id}"
-                    HarvestedLevel.ROTTEN -> "썩은 ${product.id}"
+                    HarvestedLevel.RAW -> "들 자란 $readableName"
+                    HarvestedLevel.MATURE -> "익은 $readableName"
+                    HarvestedLevel.ROTTEN -> "썩은 $readableName"
                 }
             )
         )
-        meta.persistentDataContainer.set(FarmConfig.productType, PersistentDataType.STRING, product.id)
+        meta.persistentDataContainer.set(FarmConfig.productType, PersistentDataType.STRING, productClass.id)
 
         itemStack.itemMeta = meta
 
@@ -229,7 +244,7 @@ class Grow(val nj: NongJang): Listener {
     @EventHandler
     fun onPlaceItemFrame(event: HangingPlaceEvent) {
         val entity = event.entity
-        if (entity !is org.bukkit.entity.ItemFrame)
+        if (entity !is ItemFrame)
             return
 
         val world = entity.world
@@ -329,7 +344,7 @@ class Grow(val nj: NongJang): Listener {
     fun onItemFrameItemPickup(event: PlayerItemFrameChangeEvent) {
         val itemEntity = event.itemFrame
 
-        itemBreakHandle(itemEntity,) { canceled ->
+        itemBreakHandle(itemEntity) { canceled ->
             event.isCancelled = canceled
         }
     }

@@ -5,11 +5,13 @@ import org.bukkit.NamespacedKey
 object FarmConfig {
     val products = listOf(
         Product(
-            "carrot",
-            "carrot_seed",
-            "carrot_growing",
-            "carrot_grown",
-            "carrot_shit"
+            id = "carrot",
+            name = "당근",
+
+            seedCbd = "carrot_seed",
+            growingCbd = "carrot_growing",
+            grownCbd = "carrot_grown",
+            shitCbd = "carrot_shit"
         )
     )
     val productType = NamespacedKey("nongjang", "product_type")
