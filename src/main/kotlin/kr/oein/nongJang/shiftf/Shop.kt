@@ -8,6 +8,7 @@ import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 
 class Shop(val nj: NongJang): InventoryGUI() {
+    @Suppress("DEPRECATION")
     override fun createInventory(): Inventory {
         return Bukkit.createInventory(null, 6 * 9, "상점")
     }

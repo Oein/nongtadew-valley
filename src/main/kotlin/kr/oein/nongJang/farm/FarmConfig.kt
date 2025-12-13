@@ -2,8 +2,8 @@ package kr.oein.nongJang.farm
 
 import org.bukkit.NamespacedKey
 
-object namedkeys {
-    val products = listOf<Product>(
+object FarmConfig {
+    val products = listOf(
         Product(
             "carrot",
             "carrot_seed",

@@ -12,6 +12,7 @@ import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 
 class ShiftFGUI(val nongJang: NongJang): InventoryGUI() {
+    @Suppress("DEPRECATION")
     override fun createInventory(): Inventory {
         return Bukkit.createInventory(null, 3 * 9, "농타듀벨리 Shift-F 메뉴")
     }

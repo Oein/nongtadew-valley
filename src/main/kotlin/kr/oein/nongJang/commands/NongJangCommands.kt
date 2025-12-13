@@ -6,7 +6,7 @@ import dev.jorel.commandapi.arguments.ArgumentSuggestions
 import dev.jorel.commandapi.arguments.StringArgument
 import dev.jorel.commandapi.executors.CommandExecutor
 import kr.oein.nongJang.NongJang
-import kr.oein.nongJang.farm.namedkeys
+import kr.oein.nongJang.farm.FarmConfig
 import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
 import org.bukkit.GameRule
@@ -30,8 +30,8 @@ object NongJangCommands {
         }
         val worldName = "nong-jang"
 
-        var path = Paths.get(Bukkit.getServer().worldContainer.path, worldName)
-        var fileExsists = Files.exists(path)
+        val path = Paths.get(Bukkit.getServer().worldContainer.path, worldName)
+        val fileExists = Files.exists(path)
 
         var world = Bukkit.getWorld(worldName)
         if (world == null) {
@@ -59,14 +59,14 @@ object NongJangCommands {
                 world.setGameRule(GameRule.PLAYERS_NETHER_PORTAL_CREATIVE_DELAY, Int.MAX_VALUE)
                 world.setGameRule(GameRule.RANDOM_TICK_SPEED, 0)
 
-                if(plugin != null && !fileExsists) {
+                if(plugin != null && !fileExists) {
                     // Preload chunks in the T3 radius
                     plugin!!.logger.info { "Preloading chunks in Nongjang world..." }
-                    var t3r = plugin!!.chunkManager.T3_radius
+                    val t3r = plugin!!.chunkManager.t3Radius
                     for (x in -t3r..t3r) {
                         for (z in -t3r..t3r) {
                             plugin!!.logger.info { "Preloading chunks (${(x + t3r) * (2 * t3r + 1) + z + t3r} / ${(t3r * 2 + 1) * (t3r * 2 + 1)})" }
-                            var chunk = world.getChunkAt(x, z)
+                            val chunk = world.getChunkAt(x, z)
                             if (!chunk.isLoaded) {
                                 chunk.load()
                             }
@@ -168,7 +168,7 @@ object NongJangCommands {
                             .withArguments(dev.jorel.commandapi.arguments.PlayerArgument("player"))
                             .withArguments(dev.jorel.commandapi.arguments.LongArgument("amount"))
                             .executes(CommandExecutor { sender, arguments ->
-                                val targetPlayer = arguments[0] as org.bukkit.entity.Player
+                                val targetPlayer = arguments[0] as Player
                                 val amount = arguments[1] as Long
                                 nj.moneyManager.addMoney(targetPlayer, amount)
                                 sender.sendMessage(Component.text("Added ₩$amount to ${targetPlayer.name}."))
@@ -179,7 +179,7 @@ object NongJangCommands {
                             .withArguments(dev.jorel.commandapi.arguments.PlayerArgument("player"))
                             .withArguments(dev.jorel.commandapi.arguments.LongArgument("amount"))
                             .executes(CommandExecutor { sender, arguments ->
-                                val targetPlayer = arguments[0] as org.bukkit.entity.Player
+                                val targetPlayer = arguments[0] as Player
                                 val amount = arguments[1] as Long
                                 nj.moneyManager.removeMoney(targetPlayer, amount)
                                 sender.sendMessage(Component.text("Added ₩$amount to ${targetPlayer.name}."))
@@ -194,7 +194,7 @@ object NongJangCommands {
                             .withArguments(dev.jorel.commandapi.arguments.PlayerArgument("player"))
                             .withArguments(dev.jorel.commandapi.arguments.LongArgument("amount"))
                             .executes(CommandExecutor { sender, arguments ->
-                                val targetPlayer = arguments[0] as org.bukkit.entity.Player
+                                val targetPlayer = arguments[0] as Player
                                 val amount = arguments[1] as Long
                                 nj.moneyManager.addDebit(targetPlayer, amount)
                                 sender.sendMessage(Component.text("Added debit ₩$amount to ${targetPlayer.name}."))
@@ -205,7 +205,7 @@ object NongJangCommands {
                             .withArguments(dev.jorel.commandapi.arguments.PlayerArgument("player"))
                             .withArguments(dev.jorel.commandapi.arguments.LongArgument("amount"))
                             .executes(CommandExecutor { sender, arguments ->
-                                val targetPlayer = arguments[0] as org.bukkit.entity.Player
+                                val targetPlayer = arguments[0] as Player
                                 val amount = arguments[1] as Long
                                 nj.moneyManager.removeDebit(targetPlayer, amount)
                                 sender.sendMessage(Component.text("Removed debit ₩$amount from ${targetPlayer.name}."))
@@ -229,12 +229,11 @@ object NongJangCommands {
                             return@CommandExecutor
                         }
 
-                        val player = sender as Player
-                        val playerPos = player.location
+                        val playerPos = sender.location
                         var hblock: Block? = null
 
                         for (y in 254 downTo 1) {
-                            val checkBlock = player.world.getBlockAt(playerPos.blockX, y, playerPos.blockZ)
+                            val checkBlock = sender.world.getBlockAt(playerPos.blockX, y, playerPos.blockZ)
                             // if it is not air
                             if (checkBlock.type != org.bukkit.Material.AIR) {
                                 // set hblock to this block
@@ -244,11 +243,11 @@ object NongJangCommands {
                         }
 
                         if (hblock == null) {
-                            player.sendMessage(Component.text("No HBlock found at your location."))
+                            sender.sendMessage(Component.text("No HBlock found at your location."))
                             return@CommandExecutor
                         }
 
-                        player.sendMessage {
+                        sender.sendMessage {
                             Component.text("HBlock info =====\n")
                                 .append {
                                     Component.text("Location: (${hblock.location.x.toInt()}, ${hblock.location.y.toInt()}, ${hblock.location.z.toInt()})\n")
@@ -264,7 +263,7 @@ object NongJangCommands {
                     .withPermission(CommandPermission.OP)
                     .withArguments(
                         StringArgument("product")
-                            .replaceSuggestions(ArgumentSuggestions.strings { namedkeys.products.map { it.id }.toTypedArray() })
+                            .replaceSuggestions(ArgumentSuggestions.strings { FarmConfig.products.map { it.id }.toTypedArray() })
                     )
                     .executes(CommandExecutor { sender, arguments ->
                         val productName = arguments[0] as String

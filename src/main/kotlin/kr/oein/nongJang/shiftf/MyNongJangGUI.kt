@@ -3,7 +3,6 @@ package kr.oein.nongJang.shiftf
 import kr.oein.interchest.InventoryButton
 import kr.oein.interchest.InventoryGUI
 import kr.oein.nongJang.NongJang
-import kr.oein.nongJang.commands.NongJangCommands
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.title.Title
@@ -13,7 +12,6 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import kotlin.math.ceil
-import kotlin.math.floor
 
 class MyNongJangGUI(val nongJang: NongJang, val player: Player, val page: Int = 0): InventoryGUI() {
     val myNongJangs = nongJang.chunkManager.getMyChunks(player)
@@ -21,6 +19,7 @@ class MyNongJangGUI(val nongJang: NongJang, val player: Player, val page: Int = 
     val itemsInPage = 9 * 5
     val startIndex = page * itemsInPage
     val allPages = ceil(myNongJangs.size.toDouble() / itemsInPage).toInt()
+    @Suppress("DEPRECATION")
     override fun createInventory(): Inventory {
         return Bukkit.createInventory(null, 6 * 9, "내 농장 보기 - 페이지 (${page + 1}/${allPages})")
     }

@@ -2,25 +2,23 @@ package kr.oein.nongJang.kvdb
 
 import kr.oein.nongJang.NongJang
 import org.bukkit.Bukkit
-import org.bukkit.Material
 import org.bukkit.entity.Player
-import java.util.UUID
-import kotlin.collections.mutableListOf
+import java.util.*
 import kotlin.math.abs
 import kotlin.math.max
 
 class ChunkManager(val nj: NongJang) {
     val kvdb = nj.kvdb
-    val T1_radius = 2
-    val T2_radius = 4
-    val T3_radius = 6
+    val t1Radius = 2
+    val t2Radius = 4
+    val t3Radius = 6
 
-    val T3soilFrom = 20
-    val T3soilTo = 50
-    val T2soilFrom = 50
-    val T2soilTo = 80
-    val T1soilFrom = 90
-    val T1soilTo = 140
+    val t3SoilFrom = 20
+    val t3SoilTo = 50
+    val t2SoilFrom = 50
+    val t2SoilTo = 80
+    val t1SoilFrom = 90
+    val t1SoilTo = 140
 
     val minTemp = -20
     val maxTemp = 50
@@ -28,9 +26,9 @@ class ChunkManager(val nj: NongJang) {
     val minHumidity = 0
     val maxHumidity = 100
 
-    val T3Price = 600000L
-    val T2Price = 7000000L
-    val T1Price = 80000000L
+    val t3Price = 600000L
+    val t2Price = 7000000L
+    val t1Price = 80000000L
 
     val tempScore = kvdb.loadScope("chunks-temperature")
     val humidityScope = kvdb.loadScope("chunks-humidity")
@@ -40,11 +38,11 @@ class ChunkManager(val nj: NongJang) {
 
     fun getTier(x: Int, z: Int): Int {
         val dist = max(abs(x), abs(z))
-        if(dist <= T1_radius) {
+        if(dist <= t1Radius) {
             return 1
-        } else if(dist <= T2_radius) {
+        } else if(dist <= t2Radius) {
             return 2
-        } else if(dist <= T3_radius) {
+        } else if(dist <= t3Radius) {
             return 3
         }
         return 4
@@ -52,9 +50,9 @@ class ChunkManager(val nj: NongJang) {
 
     fun getSoilRange(tier: Int): Pair<Int, Int> {
         return when(tier) {
-            1 -> Pair(T1soilFrom, T1soilTo)
-            2 -> Pair(T2soilFrom, T2soilTo)
-            3 -> Pair(T3soilFrom, T3soilTo)
+            1 -> Pair(t1SoilFrom, t1SoilTo)
+            2 -> Pair(t2SoilFrom, t2SoilTo)
+            3 -> Pair(t3SoilFrom, t3SoilTo)
             else -> Pair(0, 0)
         }
     }
@@ -99,8 +97,8 @@ class ChunkManager(val nj: NongJang) {
         var tempYamlStr = ""
         var humidityYamlStr = ""
         var soilYamlStr = ""
-        for(x in -T3_radius .. T3_radius) {
-            for(z in -T3_radius .. T3_radius) {
+        for(x in -t3Radius .. t3Radius) {
+            for(z in -t3Radius .. t3Radius) {
                 val key = "${x},${z}"
                 val chunkData = genChunkData(x, z)
                 tempYamlStr += "$key: ${chunkData["temperature"]}\n"
@@ -218,9 +216,9 @@ class ChunkManager(val nj: NongJang) {
     fun getPrice(x: Int, z: Int): Long? {
         val tier = getTier(x, z)
         return when(tier) {
-            1 -> T1Price
-            2 -> T2Price
-            3 -> T3Price
+            1 -> t1Price
+            2 -> t2Price
+            3 -> t3Price
             else -> null
         }
     }

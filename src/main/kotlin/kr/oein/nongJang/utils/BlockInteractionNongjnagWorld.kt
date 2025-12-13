@@ -6,8 +6,6 @@ import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Material
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
-import org.bukkit.event.block.BlockPistonExtendEvent
-import org.bukkit.event.block.BlockPistonRetractEvent
 import org.bukkit.event.entity.AreaEffectCloudApplyEvent
 import org.bukkit.event.entity.PotionSplashEvent
 import org.bukkit.event.player.PlayerItemConsumeEvent
@@ -51,7 +49,6 @@ class BlockInteraction(val nj: NongJang): Listener {
 
     @EventHandler
     fun onPlayerOpenChest(event: org.bukkit.event.player.PlayerInteractEvent) {
-        if (event.isCancelled) return
         val player = event.player
         if(player.isOp) return
         val world = player.world

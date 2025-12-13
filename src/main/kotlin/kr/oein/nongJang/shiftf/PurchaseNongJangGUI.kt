@@ -4,18 +4,21 @@ import kr.oein.interchest.InventoryButton
 import kr.oein.interchest.InventoryGUI
 import kr.oein.nongJang.NongJang
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.meta.SkullMeta
 
 class PurchaseNongJangGUI(val nongJang: NongJang, val player: Player, val centerX: Int, val centerY: Int): InventoryGUI() {
     val viewWidth = 9 - 2
     val viewHeight = 5 - 2
 
-    val worldRadius = nongJang.chunkManager.T3_radius * 2 + 1
+    val worldRadius = nongJang.chunkManager.t3Radius * 2 + 1
 
+    @Suppress("DEPRECATION")
     override fun createInventory(): Inventory {
         return Bukkit.createInventory(null, 5 * 9, "농장 구입하기")
     }
@@ -308,7 +311,7 @@ class PurchaseNongJangGUI(val nongJang: NongJang, val player: Player, val center
 
         for(x in -viewWidth/2 until viewWidth/2 + 1) {
             for(y in -viewHeight/2 until viewHeight/2 + 1) {
-                var slot = ((y + viewHeight/2 + 1) * 9) + (x + viewWidth/2 + 1)
+                var slot: Int
                 val yRevSlot = ((-y + viewHeight/2 + 1) * 9) + (x + viewWidth/2 + 1)
                 slot = yRevSlot
                 val worldX = centerX + x
@@ -337,7 +340,7 @@ class PurchaseNongJangGUI(val nongJang: NongJang, val player: Player, val center
                                     Component.text("소유주: ${owner.name}")
                                 ))
                                 // set skull owner
-                                val skullMeta = meta as org.bukkit.inventory.meta.SkullMeta
+                                val skullMeta = meta as SkullMeta
                                 skullMeta.owningPlayer = owner
                             } else {
                                 meta.lore(listOf(
@@ -352,18 +355,18 @@ class PurchaseNongJangGUI(val nongJang: NongJang, val player: Player, val center
                             if (p == null) return@consumer
                             if (isPurchased) {
                                 p.sendMessage {
-                                    Component.text("이미 구입된 농장입니다.", net.kyori.adventure.text.format.NamedTextColor.RED)
+                                    Component.text("이미 구입된 농장입니다.", NamedTextColor.RED)
                                 }
                                 return@consumer
                             }
                             val res = nongJang.chunkManager.purchaseChunk(worldX, worldY, p)
                             if(res) {
                                 p.sendMessage {
-                                    Component.text("농장 구입에 성공했습니다! (${worldX}, ${worldY})", net.kyori.adventure.text.format.NamedTextColor.GREEN)
+                                    Component.text("농장 구입에 성공했습니다! (${worldX}, ${worldY})", NamedTextColor.GREEN)
                                 }
                             } else {
                                 p.sendMessage {
-                                    Component.text("농장 구입에 실패했습니다. 잔액을 확인해주세요. (${worldX}, ${worldY})", net.kyori.adventure.text.format.NamedTextColor.RED)
+                                    Component.text("농장 구입에 실패했습니다. 잔액을 확인해주세요. (${worldX}, ${worldY})", NamedTextColor.RED)
                                 }
                             }
 
@@ -377,7 +380,7 @@ class PurchaseNongJangGUI(val nongJang: NongJang, val player: Player, val center
         }
 
         // empty panes
-        val emptyPanes = listOf<Int>(
+        val emptyPanes = listOf(
             0,1,2,3,  6,7,8,
             9, 17,
 

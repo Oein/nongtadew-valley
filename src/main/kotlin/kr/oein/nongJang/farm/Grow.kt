@@ -39,7 +39,7 @@ class Grow(val nj: NongJang): Listener {
     }
 
     fun productById(id: String): Product? {
-        return namedkeys.products.findLast { it.id == id }
+        return FarmConfig.products.findLast { it.id == id }
     }
 
     fun handleChunk(x: Int, z: Int) {
@@ -67,9 +67,9 @@ class Grow(val nj: NongJang): Listener {
 
                 val nearbyItemFrame = nearbyItemFrames.first()
 
-                var grownLevel = nearbyItemFrame.item.persistentDataContainer.get(namedkeys.grownLevel, PersistentDataType.DOUBLE) ?: continue
-                var shitLevel = nearbyItemFrame.item.persistentDataContainer.get(namedkeys.shitLevel, PersistentDataType.DOUBLE) ?: continue
-                val productType = nearbyItemFrame.item.persistentDataContainer.get(namedkeys.productType, PersistentDataType.STRING) ?: continue
+                var grownLevel = nearbyItemFrame.item.persistentDataContainer.get(FarmConfig.grownLevel, PersistentDataType.DOUBLE) ?: continue
+                var shitLevel = nearbyItemFrame.item.persistentDataContainer.get(FarmConfig.shitLevel, PersistentDataType.DOUBLE) ?: continue
+                val productType = nearbyItemFrame.item.persistentDataContainer.get(FarmConfig.productType, PersistentDataType.STRING) ?: continue
                 val product = productById(productType) ?: continue
 
                 if(grownLevel < 100.0 && shitLevel < 100.0) {
@@ -164,7 +164,7 @@ class Grow(val nj: NongJang): Listener {
         val meta = itemStack.itemMeta
 
         meta.customModelDataComponent.strings = listOf("seed_$product")
-        meta.persistentDataContainer.set(namedkeys.productType, PersistentDataType.STRING, product)
+        meta.persistentDataContainer.set(FarmConfig.productType, PersistentDataType.STRING, product)
         meta.customName(
             Component.text("$product 씨앗")
         )
@@ -176,19 +176,19 @@ class Grow(val nj: NongJang): Listener {
         val itemStack = ItemStack(Material.DIRT, 1)
         val meta = itemStack.itemMeta
 
-        val product = namedkeys.products.findLast { it.id == product } ?: return null
+        val product = FarmConfig.products.findLast { it.id == product } ?: return null
         val cbd = when (level) {
-            GrowingLevel.SEED -> product.seed_cbd
-            GrowingLevel.GROWING -> product.growing_cbd
-            GrowingLevel.GROWN -> product.grown_cbd
-            GrowingLevel.SHIT -> product.shit_cbd
+            GrowingLevel.SEED -> product.seedCbd
+            GrowingLevel.GROWING -> product.growingCbd
+            GrowingLevel.GROWN -> product.grownCbd
+            GrowingLevel.SHIT -> product.shitCbd
         }
         val customModelDataComponent = meta.customModelDataComponent
         customModelDataComponent.strings = listOf(cbd)
         meta.setCustomModelDataComponent(customModelDataComponent)
-        meta.persistentDataContainer.set(namedkeys.productType, PersistentDataType.STRING, product.id)
-        meta.persistentDataContainer.set(namedkeys.grownLevel, PersistentDataType.DOUBLE, grownLevel ?: 0.0)
-        meta.persistentDataContainer.set(namedkeys.shitLevel, PersistentDataType.DOUBLE, shitLevel ?: 0.0)
+        meta.persistentDataContainer.set(FarmConfig.productType, PersistentDataType.STRING, product.id)
+        meta.persistentDataContainer.set(FarmConfig.grownLevel, PersistentDataType.DOUBLE, grownLevel ?: 0.0)
+        meta.persistentDataContainer.set(FarmConfig.shitLevel, PersistentDataType.DOUBLE, shitLevel ?: 0.0)
         itemStack.itemMeta = meta
 
         return itemStack
@@ -198,11 +198,11 @@ class Grow(val nj: NongJang): Listener {
         val itemStack = ItemStack(Material.DIRT, 1)
         val meta = itemStack.itemMeta
 
-        val product = namedkeys.products.findLast { it.id == product } ?: return null
+        val product = FarmConfig.products.findLast { it.id == product } ?: return null
         val cbd = when (level) {
-            HarvestedLevel.RAW -> product.shit_cbd
-            HarvestedLevel.MATURE -> product.grown_cbd
-            HarvestedLevel.ROTTEN -> product.shit_cbd
+            HarvestedLevel.RAW -> product.shitCbd
+            HarvestedLevel.MATURE -> product.grownCbd
+            HarvestedLevel.ROTTEN -> product.shitCbd
         }
 
         val customModelDataComponent = meta.customModelDataComponent
@@ -218,7 +218,7 @@ class Grow(val nj: NongJang): Listener {
                 }
             )
         )
-        meta.persistentDataContainer.set(namedkeys.productType, PersistentDataType.STRING, product.id)
+        meta.persistentDataContainer.set(FarmConfig.productType, PersistentDataType.STRING, product.id)
 
         itemStack.itemMeta = meta
 
@@ -237,9 +237,9 @@ class Grow(val nj: NongJang): Listener {
             return
 
         val item = event.itemStack ?: return
-        val productType = item.persistentDataContainer.get(namedkeys.productType, PersistentDataType.STRING) ?: return
+        val productType = item.persistentDataContainer.get(FarmConfig.productType, PersistentDataType.STRING) ?: return
 
-        if(!namedkeys.products.map { it.id }.contains(productType))
+        if(!FarmConfig.products.map { it.id }.contains(productType))
             return
 
         if(event.blockFace != BlockFace.UP) {
@@ -269,9 +269,9 @@ class Grow(val nj: NongJang): Listener {
             return
 
         val item = entity.item
-        val productType = item.persistentDataContainer.get(namedkeys.productType, PersistentDataType.STRING) ?: return
+        val productType = item.persistentDataContainer.get(FarmConfig.productType, PersistentDataType.STRING) ?: return
 
-        if(!namedkeys.products.map { it.id }.contains(productType))
+        if(!FarmConfig.products.map { it.id }.contains(productType))
             return
 
         broadcast(" # Item frame broken, product type: $productType")
@@ -279,10 +279,10 @@ class Grow(val nj: NongJang): Listener {
         val cbdItem = createHarvestedItem(
             productType,
             when {
-                (item.persistentDataContainer.get(namedkeys.shitLevel, PersistentDataType.DOUBLE) ?: 0.0) >= 100.0 -> {
+                (item.persistentDataContainer.get(FarmConfig.shitLevel, PersistentDataType.DOUBLE) ?: 0.0) >= 100.0 -> {
                     HarvestedLevel.ROTTEN
                 }
-                (item.persistentDataContainer.get(namedkeys.grownLevel, PersistentDataType.DOUBLE) ?: 0.0) >= 100.0 -> {
+                (item.persistentDataContainer.get(FarmConfig.grownLevel, PersistentDataType.DOUBLE) ?: 0.0) >= 100.0 -> {
                     HarvestedLevel.MATURE
                 }
                 else -> {

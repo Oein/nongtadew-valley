@@ -3,7 +3,7 @@ package kr.oein.nongJang.kvdb
 import org.bukkit.entity.Player
 import java.lang.Long.parseLong
 
-class MoneyManager(val kvdb: KVDB) {
+class MoneyManager(kvdb: KVDB) {
     val moneyScope = kvdb.loadScope("money")
     val debitScope = kvdb.loadScope("debit")
 
