@@ -25,7 +25,6 @@ object NongJangCommands {
     var plugin: NongJang? = null
     fun ensureNongJangWorld(): World? {
         if (nongjangWorld != null) {
-            plugin?.logger?.info("Nongjang world already ensured") ?: java.util.logging.Logger.getLogger("NongJang").info("Nongjang world already ensured")
             return nongjangWorld
         }
         val worldName = "nong-jang"
@@ -59,26 +58,7 @@ object NongJangCommands {
                 world.setGameRule(GameRule.PLAYERS_NETHER_PORTAL_CREATIVE_DELAY, Int.MAX_VALUE)
                 world.setGameRule(GameRule.RANDOM_TICK_SPEED, 0)
 
-                if(plugin != null && !fileExists) {
-                    // Preload chunks in the T3 radius
-                    plugin!!.logger.info { "Preloading chunks in Nongjang world..." }
-                    val t3r = plugin!!.chunkManager.t3Radius
-                    for (x in -t3r..t3r) {
-                        for (z in -t3r..t3r) {
-                            plugin!!.logger.info { "Preloading chunks (${(x + t3r) * (2 * t3r + 1) + z + t3r} / ${(t3r * 2 + 1) * (t3r * 2 + 1)})" }
-                            val chunk = world.getChunkAt(x, z)
-                            if (!chunk.isLoaded) {
-                                chunk.load()
-                            }
-                        }
-                        world.save(true)
-                        // unload all chunks after preloading
-                        plugin!!.logger.info { "Unloading preloaded chunks... (${world.loadedChunks.size})" }
-                        for (chunk in world.loadedChunks) {
-                            chunk.unload(false)
-                        }
-                    }
-                }
+                world.save(true)
             } catch (e: Exception) {
                 plugin?.logger?.warning("Failed to apply game rules to Nongjang world: ${e.message}") ?: java.util.logging.Logger.getLogger("NongJang").warning("Failed to apply game rules to Nongjang world: ${e.message}")
             }

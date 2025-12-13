@@ -7,9 +7,10 @@ import kr.oein.nongJang.farm.Grow
 import kr.oein.nongJang.kvdb.ChunkManager
 import kr.oein.nongJang.kvdb.KVDB
 import kr.oein.nongJang.kvdb.MoneyManager
-import kr.oein.nongJang.scoreboard.Scoreboard
+import kr.oein.nongJang.utils.Scoreboard
 import kr.oein.nongJang.shiftf.ShiftF
 import kr.oein.nongJang.utils.BlockInteraction
+import kr.oein.nongJang.utils.Bossbar
 import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -21,6 +22,7 @@ class NongJang : JavaPlugin() {
     val guiListener = GUIListener(guiManager)
     var njCommands = NongJangCommands
     val grow = Grow(this)
+    val bossbar = Bossbar(this)
 
     override fun onEnable() {
         Bukkit.getPluginManager().registerEvents(guiListener, this)
@@ -32,7 +34,9 @@ class NongJang : JavaPlugin() {
         saveDefaultConfig()
         // Register commands and ensure the nong-jang world after the server has finished loading worlds
         njCommands.register(this)
+
         grow.scheduleGrowthHandling()
+        bossbar.updateSchedule()
     }
 
     override fun onLoad() {
@@ -41,5 +45,6 @@ class NongJang : JavaPlugin() {
     }
 
     override fun onDisable() {
+        bossbar.hideAll()
     }
 }

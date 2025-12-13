@@ -10,9 +10,9 @@ data class Product(
     val shitCbd: String,
 
     val calculateGrow: (temperature: Double, soil: Double, wet: Double) -> Double = { _, _, _ ->
-        1.0
+        Math.random() * 20.0
     },
     val calculateShit: (temperature: Double, soil: Double, wet: Double) -> Double = { _, _, _ ->
-        0.5
+        Math.random() * 10.0
     }
 )

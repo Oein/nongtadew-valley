@@ -48,8 +48,6 @@ class Grow(val nj: NongJang): Listener {
         val wet = nj.chunkManager.getHumidity(x, z) ?: return
         val temp = nj.chunkManager.getTemperature(x, z) ?: return
 
-        broadcast("  # Handle chunk at ($x, $z)")
-
         for(xApd in 0..15) {
             for(zApd in 0..15) {
                 val blockX = (x shl 4) + xApd
@@ -104,11 +102,6 @@ class Grow(val nj: NongJang): Listener {
                     }
                 }
 
-                broadcast("   Found farmable block at (${highestBlock.x}, ${highestBlock.y}, ${highestBlock.z})")
-                broadcast("    - Grown level: $grownLevel")
-                broadcast("    - Shit Level: $shitLevel")
-                broadcast("    - Grown State: $newGrowState")
-
                 val cbdItem = createCBDItem(
                     productType,
                     newGrowState,
@@ -131,8 +124,8 @@ class Grow(val nj: NongJang): Listener {
             }
         }
     }
+
     fun handlePlayerGrowth(player: Player) {
-        broadcast(" # Handling growth for player ${player.name}")
         val playerChunks = nj.chunkManager.getMyChunks(player)
 
         for(chunk in playerChunks)
@@ -140,7 +133,6 @@ class Grow(val nj: NongJang): Listener {
     }
 
     fun handleGrowth() {
-        broadcast("# Starting growth handling")
         for(player in nj.server.onlinePlayers)
             handlePlayerGrowth(player)
     }
@@ -349,14 +341,22 @@ class Grow(val nj: NongJang): Listener {
         }
     }
 
+    val scheduleInterval = 10
+    val fullGrowTicks = 20 // 1 min to full grow
+    var leftTicks = fullGrowTicks
     fun scheduleGrowthHandling() {
         nj.server.scheduler.runTaskTimer(
             nj,
             { ->
-                handleGrowth()
+                if (leftTicks <= 0) {
+                    handleGrowth()
+                    leftTicks = fullGrowTicks
+                } else {
+                    leftTicks -= scheduleInterval
+                }
             },
             0L,
-            20L * 60L * 1L // every 1 minutes
+            scheduleInterval.toLong() // every 1 second
         )
     }
 }

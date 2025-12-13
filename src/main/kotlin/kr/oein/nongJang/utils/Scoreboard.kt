@@ -1,26 +1,29 @@
-package kr.oein.nongJang.scoreboard
+package kr.oein.nongJang.utils
 
 import io.papermc.paper.scoreboard.numbers.NumberFormat
 import kr.oein.nongJang.NongJang
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
+import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
+import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.scoreboard.Criteria
+import org.bukkit.scoreboard.DisplaySlot
 import org.bukkit.scoreboard.ScoreboardManager
 
 class Scoreboard: Listener {
     val nj: NongJang
     val scoreboardManager: ScoreboardManager
 
-    fun setupForPlayer(player: org.bukkit.entity.Player) {
+    fun setupForPlayer(player: Player) {
         val board = scoreboardManager.newScoreboard
         val objective = board.registerNewObjective(
             "nongjang",
             Criteria.DUMMY,
             Component.text("농타듀벨리", NamedTextColor.GREEN)
         )
-        objective.displaySlot = org.bukkit.scoreboard.DisplaySlot.SIDEBAR
+        objective.displaySlot = DisplaySlot.SIDEBAR
 
         val moneyScore = objective.getScore("money")
         moneyScore.customName(
@@ -40,7 +43,7 @@ class Scoreboard: Listener {
     }
 
     @EventHandler
-    fun onPlayerJoin(event: org.bukkit.event.player.PlayerJoinEvent) {
+    fun onPlayerJoin(event: PlayerJoinEvent) {
         setupForPlayer(event.player)
     }
 
