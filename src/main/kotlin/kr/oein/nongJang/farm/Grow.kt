@@ -6,13 +6,17 @@ import net.kyori.adventure.text.Component
 import org.bukkit.Material
 import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
+import org.bukkit.block.data.type.Farmland
 import org.bukkit.entity.ItemFrame
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
+import org.bukkit.event.block.Action
+import org.bukkit.event.entity.EntityChangeBlockEvent
 import org.bukkit.event.hanging.HangingBreakByEntityEvent
 import org.bukkit.event.hanging.HangingBreakEvent
 import org.bukkit.event.hanging.HangingPlaceEvent
+import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 import kotlin.math.min
@@ -168,7 +172,10 @@ class Grow(val nj: NongJang): Listener {
         val itemStack = ItemStack(Material.ITEM_FRAME, 1)
         val meta = itemStack.itemMeta
 
-        meta.customModelDataComponent.strings = listOf("seed_$product")
+        val customModelDataComponent = meta.customModelDataComponent
+        customModelDataComponent.strings = listOf(productClass.seedGuiCbd)
+        meta.setCustomModelDataComponent(customModelDataComponent)
+
         meta.persistentDataContainer.set(FarmConfig.productType, PersistentDataType.STRING, product)
 
         meta.customName(
@@ -281,7 +288,6 @@ class Grow(val nj: NongJang): Listener {
         if(!FarmConfig.products.map { it.id }.contains(productType))
             return
 
-        broadcast(" # Item frame broken, product type: $productType")
         setCanceled(true)
         val cbdItem = createHarvestedItem(
             productType,
@@ -341,8 +347,66 @@ class Grow(val nj: NongJang): Listener {
         }
     }
 
+    // 땅을 갈았을때
+    @EventHandler
+    fun onPlowLand(event: PlayerInteractEvent) {
+        val player = event.player
+        var clicked = event.clickedBlock ?: return
+        val world = player.world
+        if (world != nj.njCommands.nongjangWorld)
+            return
+
+        if (event.action != Action.RIGHT_CLICK_BLOCK)
+            return
+
+        val itemInHand = event.item ?: return
+        if(!itemInHand.type.name.contains("_HOE"))
+            return
+
+        if(clicked.type != Material.GRASS_BLOCK && clicked.type != Material.DIRT)
+            return
+
+        event.isCancelled = true
+
+        clicked.type = Material.FARMLAND
+        val farmlandTyped = clicked.blockData as Farmland
+        farmlandTyped.moisture = farmlandTyped.maximumMoisture
+        clicked.blockData = farmlandTyped
+    }
+
+    // 간 땅이 dirt로 바뀔때, (사람이 점프해서)
+    @EventHandler
+    fun onDeplowLand(event: EntityChangeBlockEvent) {
+        val block = event.block
+        val world = block.world
+        if(world != nj.njCommands.nongjangWorld)
+            return
+
+        val newBlock = event.to
+        if(block.type != Material.FARMLAND)
+            return
+        if(newBlock != Material.DIRT)
+            return
+
+        // check has item frame
+        val upblock = block.getRelative(BlockFace.UP)
+        if(upblock.type != Material.VOID_AIR)
+            return
+
+        val nearbyItemFrames = upblock.location.toCenterLocation().getNearbyEntitiesByType(
+            ItemFrame::class.java,
+            0.5
+        )
+
+        if(nearbyItemFrames.size != 1)
+            return
+
+        val nearbyItemFrame = nearbyItemFrames.first()
+        itemBreakHandle(nearbyItemFrame) { _ -> }
+    }
+
     val scheduleInterval = 10
-    val fullGrowTicks = 20 // 1 min to full grow
+    val fullGrowTicks = 200 // 1 min to full grow
     var leftTicks = fullGrowTicks
     fun scheduleGrowthHandling() {
         nj.server.scheduler.runTaskTimer(

@@ -4,6 +4,7 @@ import kr.oein.interchest.GUIListener
 import kr.oein.interchest.GUIManager
 import kr.oein.nongJang.commands.NongJangCommands
 import kr.oein.nongJang.farm.Grow
+import kr.oein.nongJang.http.HTTPServer
 import kr.oein.nongJang.kvdb.ChunkManager
 import kr.oein.nongJang.kvdb.KVDB
 import kr.oein.nongJang.kvdb.MoneyManager
@@ -16,10 +17,14 @@ import org.bukkit.plugin.java.JavaPlugin
 
 class NongJang : JavaPlugin() {
     var kvdb = KVDB(this)
+    val httpServer = HTTPServer(this)
+
     val moneyManager = MoneyManager(kvdb)
     val chunkManager = ChunkManager(this)
+
     val guiManager = GUIManager()
     val guiListener = GUIListener(guiManager)
+
     var njCommands = NongJangCommands
     val grow = Grow(this)
     val bossbar = Bossbar(this)
@@ -37,6 +42,8 @@ class NongJang : JavaPlugin() {
 
         grow.scheduleGrowthHandling()
         bossbar.updateSchedule()
+
+        httpServer.start()
     }
 
     override fun onLoad() {
@@ -46,5 +53,6 @@ class NongJang : JavaPlugin() {
 
     override fun onDisable() {
         bossbar.hideAll()
+        httpServer.stop()
     }
 }

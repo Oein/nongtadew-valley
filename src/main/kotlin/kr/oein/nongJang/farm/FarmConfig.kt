@@ -11,7 +11,8 @@ object FarmConfig {
             seedCbd = "carrot_seed",
             growingCbd = "carrot_growing",
             grownCbd = "carrot_grown",
-            shitCbd = "carrot_shit"
+            shitCbd = "carrot_shit",
+            seedGuiCbd = "carrot_seed_gui",
         )
     )
     val productType = NamespacedKey("nongjang", "product_type")

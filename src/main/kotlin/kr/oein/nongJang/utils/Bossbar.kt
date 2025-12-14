@@ -13,7 +13,10 @@ class Bossbar(val nj: NongJang) {
         BossBar.Overlay.NOTCHED_20
     )
     fun handlePlayer(player: Player) {
-        player.showBossBar(activeBar)
+        if(player.world == nj.njCommands.nongjangWorld)
+            player.showBossBar(activeBar)
+        else
+            player.hideBossBar(activeBar)
     }
 
     fun updateSchedule() {

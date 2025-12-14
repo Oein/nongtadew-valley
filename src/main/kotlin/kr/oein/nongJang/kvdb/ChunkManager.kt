@@ -27,8 +27,8 @@ class ChunkManager(val nj: NongJang) {
     val maxHumidity = 100
 
     val t3Price = 600000L
-    val t2Price = 7000000L
-    val t1Price = 80000000L
+    val t2Price = 5000000L
+    val t1Price = 20000000L
 
     val tempScore = kvdb.loadScope("chunks-temperature")
     val humidityScope = kvdb.loadScope("chunks-humidity")
