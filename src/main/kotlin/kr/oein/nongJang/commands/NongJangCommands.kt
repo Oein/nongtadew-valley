@@ -12,6 +12,7 @@ import org.bukkit.Bukkit
 import org.bukkit.GameRule
 import org.bukkit.World
 import org.bukkit.WorldCreator
+import org.bukkit.WorldType
 import org.bukkit.block.Block
 import org.bukkit.entity.Player
 import java.nio.file.Files
@@ -21,6 +22,8 @@ import java.util.Comparator
 
 object NongJangCommands {
     var nongjangWorld: World? = null
+    var lobbyWorld: World? = null
+
     // Plugin reference for logging and future plugin-scoped operations
     var plugin: NongJang? = null
     fun ensureNongJangWorld(): World? {
@@ -68,6 +71,40 @@ object NongJangCommands {
 
         nongjangWorld = world
         return nongjangWorld
+    }
+
+    fun ensureLobbyWorld(): World? {
+        if (lobbyWorld != null) {
+            return lobbyWorld
+        }
+        val worldName = "lobby"
+
+        // create flat world
+        var world = Bukkit.getWorld(worldName)
+        if (world == null) {
+            val wc = WorldCreator.name(worldName)
+            wc.environment(World.Environment.NORMAL)
+            wc.type(WorldType.FLAT)
+            world = Bukkit.createWorld(wc)
+
+            if (world == null) {
+                plugin?.logger?.info("Failed to load Lobby world") ?: java.util.logging.Logger.getLogger("NongJang").info("Failed to load Lobby world")
+                return null
+            } else {
+                world.setGameRule(GameRule.DO_MOB_LOOT, false)
+                world.setGameRule(GameRule.DO_MOB_SPAWNING, false)
+                world.setGameRule(GameRule.FALL_DAMAGE, false)
+                world.setGameRule(GameRule.DO_TRADER_SPAWNING, false)
+                world.setGameRule(GameRule.DO_WEATHER_CYCLE, false)
+                world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false)
+                world.setGameRule(GameRule.RANDOM_TICK_SPEED, 0)
+            }
+            plugin?.logger?.info("Lobby world loaded on demand") ?: java.util.logging.Logger.getLogger("NongJang").info("Lobby world loaded on demand")
+        } else {
+            plugin?.logger?.info("Lobby world already loaded") ?: java.util.logging.Logger.getLogger("NongJang").info("Lobby world already loaded")
+        }
+        lobbyWorld = world
+        return lobbyWorld
     }
 
     fun register(nj: NongJang) {
@@ -255,6 +292,43 @@ object NongJangCommands {
                             sender.sendMessage("This command can only be used by players.")
                         }
                     })
+            )
+            .withSubcommand(
+                CommandAPICommand("reloadhttp")
+                    .withPermission(CommandPermission.OP)
+                    .executes(CommandExecutor { sender, _ ->
+                        nj.httpServer.fm.calculateGrownStateForAllPlayers()
+
+                        sender.sendMessage(Component.text("Recalculated farmland states for all players."))
+                    })
+            )
+            .withSubcommand(
+                CommandAPICommand("lobby")
+                    .executes(CommandExecutor { sender, _ ->
+                        if(sender !is Player) {
+                            sender.sendMessage("This command can only be used by players.")
+                            return@CommandExecutor
+                        }
+                        val lobbyWorld = ensureLobbyWorld()
+                        if(lobbyWorld == null) {
+                            sender.sendMessage(Component.text("Lobby world is not available."))
+                            return@CommandExecutor
+                        }
+                        sender.teleport(lobbyWorld.spawnLocation)
+                        sender.sendMessage(Component.text("Teleported to the lobby world."))
+                    })
+                    .withSubcommand(
+                        CommandAPICommand("ensure")
+                            .withPermission(CommandPermission.OP)
+                            .executes(CommandExecutor { sender, _ ->
+                                val lobbyWorld = ensureLobbyWorld()
+                                if(lobbyWorld == null) {
+                                    sender.sendMessage(Component.text("Failed to create or load the lobby world."))
+                                    return@CommandExecutor
+                                }
+                                sender.sendMessage(Component.text("Lobby world is ensured to exist."))
+                            })
+                    )
             )
             .register()
     }

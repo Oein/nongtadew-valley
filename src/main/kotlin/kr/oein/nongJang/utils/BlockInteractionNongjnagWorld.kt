@@ -11,7 +11,7 @@ import org.bukkit.event.entity.PotionSplashEvent
 import org.bukkit.event.player.PlayerItemConsumeEvent
 import org.bukkit.event.player.PlayerMoveEvent
 
-class BlockInteraction(val nj: NongJang): Listener {
+class BlockInteractionNongjnagWorld(val nj: NongJang): Listener {
     @EventHandler
     fun onChorusFruit(event: PlayerItemConsumeEvent) {
         val material = event.item.type

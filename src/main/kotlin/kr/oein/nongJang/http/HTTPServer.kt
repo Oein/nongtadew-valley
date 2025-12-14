@@ -8,12 +8,18 @@ class HTTPServer(val nj: NongJang) {
         config.showJavalinBanner = false
     }
 
+
+    val fm = Farmland(nj, app)
+
     init {
         Money(nj, app)
         Player(nj, app)
     }
 
     fun start(port: Int = 19682) {
+        fm.calculateGrownStateForAllPlayers()
+        fm.scheduleUpdate()
+
         app.start(port)
         nj.logger.info("Running NJ HTTP server on port $port")
     }

@@ -10,7 +10,8 @@ import kr.oein.nongJang.kvdb.KVDB
 import kr.oein.nongJang.kvdb.MoneyManager
 import kr.oein.nongJang.utils.Scoreboard
 import kr.oein.nongJang.shiftf.ShiftF
-import kr.oein.nongJang.utils.BlockInteraction
+import kr.oein.nongJang.utils.BlockInteractionLobbyWorld
+import kr.oein.nongJang.utils.BlockInteractionNongjnagWorld
 import kr.oein.nongJang.utils.Bossbar
 import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
@@ -28,17 +29,20 @@ class NongJang : JavaPlugin() {
     var njCommands = NongJangCommands
     val grow = Grow(this)
     val bossbar = Bossbar(this)
+    val blockInteractionLobbyWorld = BlockInteractionLobbyWorld(this)
 
     override fun onEnable() {
         Bukkit.getPluginManager().registerEvents(guiListener, this)
         Bukkit.getPluginManager().registerEvents(ShiftF(this), this)
         Bukkit.getPluginManager().registerEvents(Scoreboard(this), this)
-        Bukkit.getPluginManager().registerEvents(BlockInteraction(this), this)
+        Bukkit.getPluginManager().registerEvents(BlockInteractionNongjnagWorld(this), this)
+        Bukkit.getPluginManager().registerEvents(blockInteractionLobbyWorld, this)
         Bukkit.getPluginManager().registerEvents(grow, this)
 
         saveDefaultConfig()
         // Register commands and ensure the nong-jang world after the server has finished loading worlds
         njCommands.register(this)
+        njCommands.ensureLobbyWorld()
 
         grow.scheduleGrowthHandling()
         bossbar.updateSchedule()
