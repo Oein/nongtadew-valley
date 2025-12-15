@@ -3,27 +3,31 @@ package kr.oein.nongJang.shiftf
 import kr.oein.interchest.InventoryButton
 import kr.oein.interchest.InventoryGUI
 import kr.oein.nongJang.NongJang
+import kr.oein.nongJang.farm.FarmConfig
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.title.Title
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.SkullMeta
+import kotlin.math.abs
 
-class PurchaseNongJangGUI(val nongJang: NongJang, val player: Player, val centerX: Int, val centerY: Int): InventoryGUI() {
+class PurchaseNongJangGUI(val nj: NongJang, val player: Player, val centerX: Int, val centerZ: Int): InventoryGUI() {
     val viewWidth = 9 - 2
     val viewHeight = 5 - 2
 
-    val worldRadius = nongJang.chunkManager.t3Radius * 2 + 1
+    val worldRadius = nj.chunkManager.t3Radius
 
     @Suppress("DEPRECATION")
     override fun createInventory(): Inventory {
-        return Bukkit.createInventory(null, 5 * 9, "농장 구입하기")
+        return Bukkit.createInventory(null, 5 * 9, "농장 구입하기 ($centerX, $centerZ)")
     }
 
     override fun decorate(player: Player?) {
+        nj.logger.info { "$centerX $centerZ" }
         // ____UP____
         // |         |
         // |         | <- viewHeight
@@ -32,12 +36,12 @@ class PurchaseNongJangGUI(val nongJang: NongJang, val player: Player, val center
         // <-viewWidth->
 
         // add up button at slot 4
-        if(centerY + viewHeight <= worldRadius) {
+        if(abs(centerZ + viewHeight) <= worldRadius) {
             this.addButton(
                 4,
                 InventoryButton()
                     .creator {
-                        val itemStack = ItemStack(Material.PINK_GLAZED_TERRACOTTA)
+                        val itemStack = ItemStack(Material.MAGENTA_GLAZED_TERRACOTTA)
                         val meta = itemStack.itemMeta
                         meta.customName(Component.text("위로 이동"))
                         itemStack.itemMeta = meta
@@ -47,8 +51,8 @@ class PurchaseNongJangGUI(val nongJang: NongJang, val player: Player, val center
                         val p = event?.let { it.whoClicked as Player }
                         if (p != null) {
                             p.closeInventory()
-                            val gui = PurchaseNongJangGUI(nongJang, p, centerX, centerY + viewHeight)
-                            nongJang.guiManager.openGUI(gui, p)
+                            val gui = PurchaseNongJangGUI(nj, p, centerX, centerZ + viewHeight)
+                            nj.guiManager.openGUI(gui, p)
                         }
                     }
             )
@@ -67,12 +71,12 @@ class PurchaseNongJangGUI(val nongJang: NongJang, val player: Player, val center
         }
 
         // add up button at slot 5
-        if(centerY + viewHeight * 4 <= worldRadius) {
+        if(abs(centerZ + viewHeight * 4) <= worldRadius) {
             this.addButton(
                 5,
                 InventoryButton()
                     .creator {
-                        val itemStack = ItemStack(Material.PINK_GLAZED_TERRACOTTA)
+                        val itemStack = ItemStack(Material.MAGENTA_GLAZED_TERRACOTTA)
                         val meta = itemStack.itemMeta
                         meta.customName(Component.text("위로 4페이지 이동"))
                         itemStack.itemMeta = meta
@@ -82,14 +86,14 @@ class PurchaseNongJangGUI(val nongJang: NongJang, val player: Player, val center
                         val p = event?.let { it.whoClicked as Player }
                         if (p != null) {
                             p.closeInventory()
-                            val gui = PurchaseNongJangGUI(nongJang, p, centerX, centerY + viewHeight * 4)
-                            nongJang.guiManager.openGUI(gui, p)
+                            val gui = PurchaseNongJangGUI(nj, p, centerX, centerZ + viewHeight * 4)
+                            nj.guiManager.openGUI(gui, p)
                         }
                     }
             )
         } else {
             this.addButton(
-                4,
+                5,
                 InventoryButton()
                     .creator {
                         val itemStack = ItemStack(Material.GRAY_GLAZED_TERRACOTTA)
@@ -102,11 +106,11 @@ class PurchaseNongJangGUI(val nongJang: NongJang, val player: Player, val center
         }
 
         // add down button at slot 45 + 4
-        if(centerY - viewHeight >= -worldRadius) {
+        if(abs(centerZ - viewHeight) <= worldRadius) {
             this.addButton(9 * 4 + 4,
                 InventoryButton()
                     .creator {
-                        val itemStack = ItemStack(Material.PINK_GLAZED_TERRACOTTA)
+                        val itemStack = ItemStack(Material.MAGENTA_GLAZED_TERRACOTTA)
                         val meta = itemStack.itemMeta
                         meta.customName(Component.text("아래로 이동"))
                         itemStack.itemMeta = meta
@@ -116,8 +120,8 @@ class PurchaseNongJangGUI(val nongJang: NongJang, val player: Player, val center
                         val p = event?.let { it.whoClicked as Player }
                         if (p != null) {
                             p.closeInventory()
-                            val gui = PurchaseNongJangGUI(nongJang, p, centerX, centerY - viewHeight)
-                            nongJang.guiManager.openGUI(gui, p)
+                            val gui = PurchaseNongJangGUI(nj, p, centerX, centerZ - viewHeight)
+                            nj.guiManager.openGUI(gui, p)
                         }
                     }
             )
@@ -135,13 +139,12 @@ class PurchaseNongJangGUI(val nongJang: NongJang, val player: Player, val center
             )
         }
 
-
         // add down button at slot 45 + 5
-        if(centerY - viewHeight * 4 >= -worldRadius) {
+        if(abs(centerZ - viewHeight * 4) <= worldRadius) {
             this.addButton(9 * 4 + 5,
                 InventoryButton()
                     .creator {
-                        val itemStack = ItemStack(Material.PINK_GLAZED_TERRACOTTA)
+                        val itemStack = ItemStack(Material.MAGENTA_GLAZED_TERRACOTTA)
                         val meta = itemStack.itemMeta
                         meta.customName(Component.text("아래로 4페이지 이동"))
                         itemStack.itemMeta = meta
@@ -151,8 +154,8 @@ class PurchaseNongJangGUI(val nongJang: NongJang, val player: Player, val center
                         val p = event?.let { it.whoClicked as Player }
                         if (p != null) {
                             p.closeInventory()
-                            val gui = PurchaseNongJangGUI(nongJang, p, centerX, centerY - viewHeight * 4)
-                            nongJang.guiManager.openGUI(gui, p)
+                            val gui = PurchaseNongJangGUI(nj, p, centerX, centerZ - viewHeight * 4)
+                            nj.guiManager.openGUI(gui, p)
                         }
                     }
             )
@@ -171,11 +174,11 @@ class PurchaseNongJangGUI(val nongJang: NongJang, val player: Player, val center
         }
 
         // add left button at slot 18
-        if(centerX - viewWidth >= -worldRadius) {
+        if(abs(centerX - viewWidth) <= worldRadius) {
             this.addButton(9 * 2,
                 InventoryButton()
                     .creator {
-                        val itemStack = ItemStack(Material.PINK_GLAZED_TERRACOTTA)
+                        val itemStack = ItemStack(Material.MAGENTA_GLAZED_TERRACOTTA)
                         val meta = itemStack.itemMeta
                         meta.customName(Component.text("왼쪽으로 이동"))
                         itemStack.itemMeta = meta
@@ -185,8 +188,8 @@ class PurchaseNongJangGUI(val nongJang: NongJang, val player: Player, val center
                         val p = event?.let { it.whoClicked as Player }
                         if (p != null) {
                             p.closeInventory()
-                            val gui = PurchaseNongJangGUI(nongJang, p, centerX - viewWidth, centerY)
-                            nongJang.guiManager.openGUI(gui, p)
+                            val gui = PurchaseNongJangGUI(nj, p, centerX - viewWidth, centerZ)
+                            nj.guiManager.openGUI(gui, p)
                         }
                     }
             )
@@ -205,11 +208,11 @@ class PurchaseNongJangGUI(val nongJang: NongJang, val player: Player, val center
         }
 
         // add left button at slot 27
-        if(centerX - viewWidth * 4 >= -worldRadius) {
+        if(abs(centerX - viewWidth * 4) <= worldRadius) {
             this.addButton(9 * 3,
                 InventoryButton()
                     .creator {
-                        val itemStack = ItemStack(Material.PINK_GLAZED_TERRACOTTA)
+                        val itemStack = ItemStack(Material.MAGENTA_GLAZED_TERRACOTTA)
                         val meta = itemStack.itemMeta
                         meta.customName(Component.text("왼쪽으로 4페이지 이동"))
                         itemStack.itemMeta = meta
@@ -219,8 +222,8 @@ class PurchaseNongJangGUI(val nongJang: NongJang, val player: Player, val center
                         val p = event?.let { it.whoClicked as Player }
                         if (p != null) {
                             p.closeInventory()
-                            val gui = PurchaseNongJangGUI(nongJang, p, centerX - viewWidth * 4, centerY)
-                            nongJang.guiManager.openGUI(gui, p)
+                            val gui = PurchaseNongJangGUI(nj, p, centerX - viewWidth * 4, centerZ)
+                            nj.guiManager.openGUI(gui, p)
                         }
                     }
             )
@@ -239,12 +242,12 @@ class PurchaseNongJangGUI(val nongJang: NongJang, val player: Player, val center
         }
 
         // add right button at slot 26
-        if(centerX + viewWidth <= worldRadius) {
+        if(abs(centerX + viewWidth) <= worldRadius) {
             this.addButton(
                 9 * 3 - 1,
                 InventoryButton()
                     .creator {
-                        val itemStack = ItemStack(Material.PINK_GLAZED_TERRACOTTA)
+                        val itemStack = ItemStack(Material.MAGENTA_GLAZED_TERRACOTTA)
                         val meta = itemStack.itemMeta
                         meta.customName(Component.text("오른쪽으로 이동"))
                         itemStack.itemMeta = meta
@@ -254,8 +257,8 @@ class PurchaseNongJangGUI(val nongJang: NongJang, val player: Player, val center
                         val p = event?.let { it.whoClicked as Player }
                         if (p != null) {
                             p.closeInventory()
-                            val gui = PurchaseNongJangGUI(nongJang, p, centerX + viewWidth, centerY)
-                            nongJang.guiManager.openGUI(gui, p)
+                            val gui = PurchaseNongJangGUI(nj, p, centerX + viewWidth, centerZ)
+                            nj.guiManager.openGUI(gui, p)
                         }
                     }
             )
@@ -273,14 +276,13 @@ class PurchaseNongJangGUI(val nongJang: NongJang, val player: Player, val center
             )
         }
 
-
         // add right button at slot 35
-        if(centerX + viewWidth * 4 <= worldRadius) {
+        if(abs(centerX + viewWidth * 4) <= worldRadius) {
             this.addButton(
                 9 * 4 - 1,
                 InventoryButton()
                     .creator {
-                        val itemStack = ItemStack(Material.PINK_GLAZED_TERRACOTTA)
+                        val itemStack = ItemStack(Material.MAGENTA_GLAZED_TERRACOTTA)
                         val meta = itemStack.itemMeta
                         meta.customName(Component.text("오른쪽으로 4페이지 이동"))
                         itemStack.itemMeta = meta
@@ -290,8 +292,8 @@ class PurchaseNongJangGUI(val nongJang: NongJang, val player: Player, val center
                         val p = event?.let { it.whoClicked as Player }
                         if (p != null) {
                             p.closeInventory()
-                            val gui = PurchaseNongJangGUI(nongJang, p, centerX + viewWidth * 4, centerY)
-                            nongJang.guiManager.openGUI(gui, p)
+                            val gui = PurchaseNongJangGUI(nj, p, centerX + viewWidth * 4, centerZ)
+                            nj.guiManager.openGUI(gui, p)
                         }
                     }
             )
@@ -315,10 +317,10 @@ class PurchaseNongJangGUI(val nongJang: NongJang, val player: Player, val center
                 val yRevSlot = ((-y + viewHeight/2 + 1) * 9) + (x + viewWidth/2 + 1)
                 slot = yRevSlot
                 val worldX = centerX + x
-                val worldY = centerY + y
-                val owner = nongJang.chunkManager.getOwner(worldX, worldY)
+                val worldZ = centerZ + y
+                val owner = nj.chunkManager.getOwner(worldX, worldZ)
                 val isPurchased = owner != null
-                val price = nongJang.chunkManager.getPrice(worldX, worldY) ?: continue
+                val price = nj.chunkManager.getPrice(worldX, worldZ) ?: continue
 
                 this.addButton(slot,
                     InventoryButton()
@@ -326,14 +328,18 @@ class PurchaseNongJangGUI(val nongJang: NongJang, val player: Player, val center
                             val itemStack = if (isPurchased) {
                                 ItemStack(Material.PLAYER_HEAD)
                             } else {
-                                ItemStack(Material.GREEN_TERRACOTTA)
+                                val t3r = nj.chunkManager.t3Radius
+                                ItemStack(FarmConfig.farmlandBlocks[((worldX + t3r + 1) * (t3r * 2 + 1) + worldZ + t3r + 1) % FarmConfig.farmlandBlocks.size])
                             }
                             val meta = itemStack.itemMeta
 
                             if (isPurchased) {
-                                meta.customName(Component.text("구입 불가 (${worldX}, ${worldY})"))
+                                meta.customName(Component.text(
+                                    if(owner.uniqueId == player?.uniqueId) "내 농장으로 이동 (${worldX}, ${worldZ})"
+                                    else "구입 불가 (${worldX}, ${worldZ})"
+                                ))
                             } else {
-                                meta.customName(Component.text("구입 가능 (${worldX}, ${worldY}) - ${price}원"))
+                                meta.customName(Component.text("구입 가능 (${worldX}, ${worldZ}) - ${price}원"))
                             }
                             if(isPurchased) {
                                 meta.lore(listOf(
@@ -354,26 +360,53 @@ class PurchaseNongJangGUI(val nongJang: NongJang, val player: Player, val center
                             val p = event?.let { it.whoClicked as Player }
                             if (p == null) return@consumer
                             if (isPurchased) {
-                                p.sendMessage {
-                                    Component.text("이미 구입된 농장입니다.", NamedTextColor.RED)
+                                if(owner.uniqueId == p.uniqueId) {
+
+                                    // teleport to the chunk owner farm
+                                    nj.njCommands.ensureNongJangWorld()
+                                    if(nj.njCommands.nongjangWorld == null) return@consumer
+                                    val x = (worldX * 16) + 8
+                                    val z = (worldZ * 16) + 8
+                                    var y = 6
+                                    for (yCheck in 254 downTo 0) {
+                                        val block = nj.njCommands.nongjangWorld!!.getBlockAt(x, yCheck, z)
+                                        if (block.type != Material.AIR) {
+                                            y = (yCheck.toDouble() + 1.0).toInt()
+                                            break
+                                        }
+                                    }
+                                    p.teleport(org.bukkit.Location(nj.njCommands.nongjangWorld!!, x.toDouble() + 0.5, y.toDouble(), z.toDouble() + 0.5))
+
+                                    // show title
+                                    p.showTitle(
+                                        Title.title(
+                                            Component.text("농장으로 이동됨!", NamedTextColor.GREEN),
+                                            Component.text("좌표: (${worldX}, ${worldZ})", NamedTextColor.WHITE)
+                                        )
+                                    )
+                                } else {
+                                    p.sendMessage {
+                                        Component.text("이미 다른 유저가 구입한 농장입니다. (${worldX}, ${worldZ})", NamedTextColor.RED)
+                                    }
                                 }
+
                                 return@consumer
                             }
-                            val res = nongJang.chunkManager.purchaseChunk(worldX, worldY, p)
+                            val res = nj.chunkManager.purchaseChunk(worldX, worldZ, p)
                             if(res) {
                                 p.sendMessage {
-                                    Component.text("농장 구입에 성공했습니다! (${worldX}, ${worldY})", NamedTextColor.GREEN)
+                                    Component.text("농장 구입에 성공했습니다! (${worldX}, ${worldZ})", NamedTextColor.GREEN)
                                 }
                             } else {
                                 p.sendMessage {
-                                    Component.text("농장 구입에 실패했습니다. 잔액을 확인해주세요. (${worldX}, ${worldY})", NamedTextColor.RED)
+                                    Component.text("농장 구입에 실패했습니다. 잔액을 확인해주세요. (${worldX}, ${worldZ})", NamedTextColor.RED)
                                 }
                             }
 
                             // reopen the GUI
                             p.closeInventory()
-                            val gui = PurchaseNongJangGUI(nongJang, p, centerX, centerY)
-                            nongJang.guiManager.openGUI(gui, p)
+                            val gui = PurchaseNongJangGUI(nj, p, centerX, centerZ)
+                            nj.guiManager.openGUI(gui, p)
                         }
                 )
             }

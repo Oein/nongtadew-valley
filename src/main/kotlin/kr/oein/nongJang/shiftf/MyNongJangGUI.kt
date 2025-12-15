@@ -3,6 +3,7 @@ package kr.oein.nongJang.shiftf
 import kr.oein.interchest.InventoryButton
 import kr.oein.interchest.InventoryGUI
 import kr.oein.nongJang.NongJang
+import kr.oein.nongJang.farm.FarmConfig
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.title.Title
@@ -125,7 +126,8 @@ class MyNongJangGUI(val nongJang: NongJang, val player: Player, val page: Int = 
             this.addButton(i,
                 InventoryButton()
                     .creator {
-                        val itemStack = ItemStack(Material.FARMLAND)
+                        val t3r = nongJang.chunkManager.t3Radius
+                        val itemStack = ItemStack(FarmConfig.farmlandBlocks[((chunkX + t3r + 1) * (t3r * 2 + 1) + chunkZ + t3r + 1) % FarmConfig.farmlandBlocks.size], 1)
                         val meta = itemStack.itemMeta
                         meta?.customName(
                             Component.text("농장 좌표: (${chunkX}, ${chunkZ})", NamedTextColor.GREEN)
@@ -149,7 +151,7 @@ class MyNongJangGUI(val nongJang: NongJang, val player: Player, val page: Int = 
                                         break
                                     }
                                 }
-                                p.teleport(org.bukkit.Location(world, x.toDouble(), y.toDouble(), z.toDouble()))
+                                p.teleport(org.bukkit.Location(world, x.toDouble() + 0.5, y.toDouble(), z.toDouble() + 0.5))
 
                                 // show title
                                 p.showTitle(

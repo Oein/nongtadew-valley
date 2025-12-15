@@ -8,15 +8,13 @@ import org.bukkit.inventory.Inventory
 
 
 abstract class InventoryGUI : InventoryHandler {
-    val inventory: Inventory
+    open val inventory: Inventory by lazy(LazyThreadSafetyMode.NONE) {
+        createInventory()
+    }
     private val buttonMap = HashMap<Int?, InventoryButton?>()
 
-    init {
-        this.inventory = this.createInventory()
-    }
-
     fun addButton(slot: Int, button: InventoryButton?) {
-        this.buttonMap.put(slot, button)
+        this.buttonMap[slot] = button
     }
 
     open fun decorate(player: Player?) {

@@ -11,7 +11,7 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 
-class ShiftFGUI(val nongJang: NongJang): InventoryGUI() {
+class ShiftFGUI(val nj: NongJang): InventoryGUI() {
     @Suppress("DEPRECATION")
     override fun createInventory(): Inventory {
         return Bukkit.createInventory(null, 3 * 9, "농타듀벨리 Shift-F 메뉴")
@@ -60,8 +60,8 @@ class ShiftFGUI(val nongJang: NongJang): InventoryGUI() {
                     val p = event?.let { it.whoClicked as Player }
                     if(p != null) {
                         p.closeInventory()
-                        val gui = MyNongJangGUI(nongJang, p, 0)
-                        nongJang.guiManager.openGUI(gui, p)
+                        val gui = MyNongJangGUI(nj, p, 0)
+                        nj.guiManager.openGUI(gui, p)
                     }
                 }
         )
@@ -80,8 +80,8 @@ class ShiftFGUI(val nongJang: NongJang): InventoryGUI() {
                     val p = event?.let { it.whoClicked as Player }
                     if(p != null) {
                         p.closeInventory()
-                        val gui = PurchaseNongJangGUI(nongJang, p, 0, 0)
-                        nongJang.guiManager.openGUI(gui, p)
+                        val gui = PurchaseNongJangGUI(nj, p, 0, 0)
+                        nj.guiManager.openGUI(gui, p)
                     }
                 }
         )
@@ -102,8 +102,8 @@ class ShiftFGUI(val nongJang: NongJang): InventoryGUI() {
                     val p = event?.let { it.whoClicked as Player }
                     if(p != null) {
                         p.closeInventory()
-                        val gui = Shop(nongJang)
-                        nongJang.guiManager.openGUI(gui, p)
+                        val gui = Shop(nj)
+                        nj.guiManager.openGUI(gui, p)
                     }
                 }
         )

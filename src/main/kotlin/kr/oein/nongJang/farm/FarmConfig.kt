@@ -1,5 +1,6 @@
 package kr.oein.nongJang.farm
 
+import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import kotlin.math.abs
 import kotlin.math.max
@@ -54,4 +55,75 @@ object FarmConfig {
     val shitLevel = NamespacedKey("nongjang", "shit_level")
 
     const val fullGrowTicks = 20 * 60 // 1 min to full grow
+
+
+    val farmlandBlocks = listOf(
+        Material.RED_WOOL,
+        Material.ORANGE_WOOL,
+        Material.YELLOW_WOOL,
+        Material.LIME_WOOL,
+        Material.LIGHT_BLUE_WOOL,
+        Material.CYAN_WOOL,
+        Material.BLUE_WOOL,
+        Material.PURPLE_WOOL,
+        Material.MAGENTA_WOOL,
+        Material.PINK_WOOL,
+        Material.WHITE_WOOL,
+        Material.GREEN_WOOL,
+        Material.BROWN_WOOL,
+        Material.GRAY_WOOL,
+        Material.LIGHT_GRAY_WOOL,
+        Material.BLACK_WOOL,
+
+        Material.RED_CONCRETE,
+        Material.ORANGE_CONCRETE,
+        Material.YELLOW_CONCRETE,
+        Material.LIME_CONCRETE,
+        Material.LIGHT_BLUE_CONCRETE,
+        Material.CYAN_CONCRETE,
+        Material.BLUE_CONCRETE,
+        Material.PURPLE_CONCRETE,
+        Material.MAGENTA_CONCRETE,
+        Material.PINK_CONCRETE,
+        Material.WHITE_CONCRETE,
+        Material.GREEN_CONCRETE,
+        Material.BROWN_CONCRETE,
+        Material.GRAY_CONCRETE,
+        Material.LIGHT_GRAY_CONCRETE,
+        Material.BLACK_CONCRETE,
+
+        Material.RED_TERRACOTTA,
+        Material.ORANGE_TERRACOTTA,
+        Material.YELLOW_TERRACOTTA,
+        Material.LIME_TERRACOTTA,
+        Material.LIGHT_BLUE_TERRACOTTA,
+        Material.CYAN_TERRACOTTA,
+        Material.BLUE_TERRACOTTA,
+        Material.PURPLE_TERRACOTTA,
+        Material.MAGENTA_TERRACOTTA,
+        Material.PINK_TERRACOTTA,
+        Material.WHITE_TERRACOTTA,
+        Material.GREEN_TERRACOTTA,
+        Material.BROWN_TERRACOTTA,
+        Material.GRAY_TERRACOTTA,
+        Material.LIGHT_GRAY_TERRACOTTA,
+        Material.BLACK_TERRACOTTA,
+
+        Material.RED_STAINED_GLASS,
+        Material.ORANGE_STAINED_GLASS,
+        Material.YELLOW_STAINED_GLASS,
+        Material.LIME_STAINED_GLASS,
+        Material.LIGHT_BLUE_STAINED_GLASS,
+        Material.CYAN_STAINED_GLASS,
+        Material.BLUE_STAINED_GLASS,
+        Material.PURPLE_STAINED_GLASS,
+        Material.MAGENTA_STAINED_GLASS,
+        Material.PINK_STAINED_GLASS,
+        Material.WHITE_STAINED_GLASS,
+        Material.GREEN_STAINED_GLASS,
+        Material.BROWN_STAINED_GLASS,
+        Material.GRAY_STAINED_GLASS,
+        Material.LIGHT_GRAY_STAINED_GLASS,
+        Material.BLACK_STAINED_GLASS,
+    )
 }

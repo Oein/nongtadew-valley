@@ -313,7 +313,7 @@ class Grow(val nj: NongJang): Listener {
         }
 
         block.world.dropItemNaturally(
-            block.location,
+            block.location.toCenterLocation(),
             cbdItem
         )
     }

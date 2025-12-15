@@ -2,6 +2,7 @@ package kr.oein.nongJang.kvdb
 
 import kr.oein.nongJang.NongJang
 import org.bukkit.Bukkit
+import org.bukkit.OfflinePlayer
 import org.bukkit.entity.Player
 import java.util.*
 import kotlin.math.abs
@@ -9,9 +10,9 @@ import kotlin.math.max
 
 class ChunkManager(val nj: NongJang) {
     val kvdb = nj.kvdb
-    val t1Radius = 2
-    val t2Radius = 4
-    val t3Radius = 6
+    val t1Radius = 16
+    val t2Radius = 48
+    val t3Radius = 128
 
     val t3SoilFrom = 20
     val t3SoilTo = 50
@@ -121,11 +122,11 @@ class ChunkManager(val nj: NongJang) {
         val key = "${x},${z}"
         return ownerScope.has(key)
     }
-    fun getOwner(x: Int, z: Int): Player? {
+    fun getOwner(x: Int, z: Int): OfflinePlayer? {
         val key = "${x},${z}"
         val uuid = ownerScope.get(key) as String?
         if(uuid != null) {
-            return Bukkit.getPlayer(UUID.fromString(uuid))
+            return Bukkit.getOfflinePlayer(UUID.fromString(uuid))
         }
         return null
     }
@@ -143,7 +144,7 @@ class ChunkManager(val nj: NongJang) {
             myChunksScope.set(key, chunkKey)
         }
     }
-    fun removeFromMyChunks(x: Int, z: Int, player: Player) {
+    fun removeFromMyChunks(x: Int, z: Int, player: OfflinePlayer) {
         val key = player.uniqueId.toString()
         val chunkKey = "${x},${z}"
         val myChunks = myChunksScope.get(key)
