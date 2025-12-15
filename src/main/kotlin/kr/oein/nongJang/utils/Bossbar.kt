@@ -1,6 +1,7 @@
 package kr.oein.nongJang.utils
 
 import kr.oein.nongJang.NongJang
+import kr.oein.nongJang.farm.FarmConfig
 import net.kyori.adventure.bossbar.BossBar
 import net.kyori.adventure.text.Component
 import org.bukkit.entity.Player
@@ -22,7 +23,7 @@ class Bossbar(val nj: NongJang) {
     fun updateSchedule() {
         nj.server.scheduler.scheduleSyncRepeatingTask(nj, {
             activeBar.name(Component.text("성장까지 남은 시간 : ${nj.grow.leftTicks.toFloat() / 20.0f}초"))
-            activeBar.progress(nj.grow.leftTicks.toFloat() / nj.grow.fullGrowTicks.toFloat())
+            activeBar.progress(nj.grow.leftTicks.toFloat() / FarmConfig.fullGrowTicks.toFloat())
             for (player in nj.server.onlinePlayers) {
                 handlePlayer(player)
             }

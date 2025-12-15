@@ -36,7 +36,7 @@ class NongJang : JavaPlugin() {
         Bukkit.getPluginManager().registerEvents(ShiftF(this), this)
         Bukkit.getPluginManager().registerEvents(Scoreboard(this), this)
         Bukkit.getPluginManager().registerEvents(BlockInteractionNongjnagWorld(this), this)
-        Bukkit.getPluginManager().registerEvents(blockInteractionLobbyWorld, this)
+//        Bukkit.getPluginManager().registerEvents(blockInteractionLobbyWorld, this)
         Bukkit.getPluginManager().registerEvents(grow, this)
 
         saveDefaultConfig()

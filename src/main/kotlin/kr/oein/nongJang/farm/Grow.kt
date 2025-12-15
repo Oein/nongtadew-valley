@@ -106,6 +106,8 @@ class Grow(val nj: NongJang): Listener {
                     }
                 }
 
+                broadcast("Seed[$blockX, $blockZ] GrownLevel: $grownLevel, ShitLevel: $shitLevel")
+
                 val cbdItem = createCBDItem(
                     productType,
                     newGrowState,
@@ -117,9 +119,9 @@ class Grow(val nj: NongJang): Listener {
                 meta.customName(
                     Component.text(
                         if(shitLevel >= 100.0)
-                            "썩음"
+                            "썩음 (${(grownLevel * 10.0).roundToInt() / 10.0}%, ${(shitLevel * 10.0).roundToInt() / 10.0}%)"
                         else
-                            "자라는중 (${grownLevel.roundToInt()}%)"
+                            "자라는중 (${(grownLevel * 10.0).roundToInt() / 10.0}%, ${(shitLevel * 10.0).roundToInt() / 10.0}%)"
                     )
                 )
                 cbdItem.itemMeta = meta
@@ -406,15 +408,15 @@ class Grow(val nj: NongJang): Listener {
     }
 
     val scheduleInterval = 10
-    val fullGrowTicks = 200 // 1 min to full grow
-    var leftTicks = fullGrowTicks
+    var leftTicks = FarmConfig.fullGrowTicks
+
     fun scheduleGrowthHandling() {
         nj.server.scheduler.runTaskTimer(
             nj,
             { ->
                 if (leftTicks <= 0) {
                     handleGrowth()
-                    leftTicks = fullGrowTicks
+                    leftTicks = FarmConfig.fullGrowTicks
                 } else {
                     leftTicks -= scheduleInterval
                 }
