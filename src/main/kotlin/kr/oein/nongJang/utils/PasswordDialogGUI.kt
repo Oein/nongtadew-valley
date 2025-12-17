@@ -1,5 +1,7 @@
 package kr.oein.nongJang.utils
 
+import io.papermc.paper.datacomponent.DataComponentTypes
+import io.papermc.paper.datacomponent.item.BlockItemDataProperties
 import kr.oein.interchest.InventoryButton
 import kr.oein.interchest.InventoryGUI
 import kr.oein.nongJang.NongJang
@@ -7,7 +9,6 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Bukkit
 import org.bukkit.Material
-import org.bukkit.block.data.BlockData
 import org.bukkit.block.data.type.Light
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.InventoryCloseEvent
@@ -19,7 +20,7 @@ class PasswordDialogGUI(val nj: NongJang): InventoryGUI() {
 
     @Suppress("DEPRECATION")
     override fun createInventory(): Inventory {
-        return Bukkit.createInventory(null, 6 * 9, "안전번호를 입력해주세요")
+        return Bukkit.createInventory(null, 6 * 9, "안전번호를 입력해주세요 (4자리)")
     }
 
     // use 10 for *
@@ -42,12 +43,11 @@ class PasswordDialogGUI(val nj: NongJang): InventoryGUI() {
         cbdComponent.strings = listOf(cbd)
         meta.setCustomModelDataComponent(cbdComponent)
 
-
-        // set light level
-        // no block data for itemstack
-
-
         itemStack.itemMeta = meta
+
+        val bData = Bukkit.createBlockData(Material.LIGHT) as Light
+        bData.level = number
+
 
         return itemStack
     }
@@ -59,6 +59,7 @@ class PasswordDialogGUI(val nj: NongJang): InventoryGUI() {
         listOf(0, 10, 11)
     )
 
+    val authScope = nj.kvdb.loadScope("auth")
     override fun decorate(player: Player?) {
         for(x in 3..5) {
             for(y in 2..5) {
@@ -74,14 +75,43 @@ class PasswordDialogGUI(val nj: NongJang): InventoryGUI() {
                             if(p != null) {
                                 if(number == 11) {
                                     // backspace
-                                    if(passwordInput.isNotEmpty()) {
+                                    if (passwordInput.isNotEmpty())
                                         passwordInput = passwordInput.dropLast(1)
-                                    }
-                                } else {
+                                } else
                                     passwordInput += if(number == 10) "*" else number.toString()
-                                }
 
                                 p.sendMessage("현재 입력된 안전번호: $passwordInput")
+                                if (passwordInput.length == 4) {
+                                    // if new
+                                    val pw = authScope.get("password_${player!!.uniqueId}")
+                                    if(pw == null) {
+                                        authScope.set("password_${player.uniqueId}", passwordInput);
+                                        nj.blockInteractionLobbyWorld.nonProcessedUsers.remove(player);
+                                        nj.blockInteractionLobbyWorld.sessionData[player.uniqueId.toString()] = PlayerSessionData(
+                                            player = player,
+                                            password = passwordInput,
+                                            discordId = null,
+                                            discordOauthToken = null
+                                        );
+                                        // close gui
+                                        p.closeInventory()
+                                        p.sendMessage(Component.text("안전번호가 설정되었습니다!", NamedTextColor.GREEN))
+                                    }
+                                    else if(passwordInput == pw){
+                                        nj.blockInteractionLobbyWorld.nonProcessedUsers.remove(player);
+                                        nj.blockInteractionLobbyWorld.sessionData[player.uniqueId.toString()] = PlayerSessionData(
+                                            player = player,
+                                            password = passwordInput,
+                                            discordId = null,
+                                            discordOauthToken = null
+                                        );
+                                        p.closeInventory()
+                                        p.sendMessage(Component.text("안전번호가 확인되었습니다!", NamedTextColor.GREEN))
+                                    } else {
+                                        p.sendMessage(Component.text("안전번호가 일치하지 않습니다. 다시 시도해주세요.", NamedTextColor.RED))
+                                        p.closeInventory()
+                                    }
+                                }
                             }
                         }
                 )
@@ -110,6 +140,9 @@ class PasswordDialogGUI(val nj: NongJang): InventoryGUI() {
 
     override fun onClose(event: InventoryCloseEvent?) {
         if (event == null) return
+        // check is non authenticated user
+        val player = event.player as Player
+        if (!nj.blockInteractionLobbyWorld.nonProcessedUsers.contains(player)) return
         nj.server.scheduler.runTaskLater(nj, { ->
             nj.guiManager.openGUI(PasswordDialogGUI(nj), event.player as Player);
         }, 1L)

@@ -31,7 +31,12 @@ class BlockInteractionLobbyWorld(val nj: NongJang): Listener {
     @EventHandler
     fun onPlayerLeave(event: PlayerQuitEvent) {
         val player = event.player;
-        sessionData.remove(player.uniqueId.toString());
+        if (sessionData.containsKey(player.uniqueId.toString())) {
+            sessionData.remove(player.uniqueId.toString());
+        }
+        if (nonProcessedUsers.contains(player)) {
+            nonProcessedUsers.remove(player);
+        }
     }
 
     @EventHandler
