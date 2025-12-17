@@ -1,7 +1,14 @@
 package kr.oein.nongJang.farm
 
+import io.papermc.paper.datacomponent.DataComponentType
+import io.papermc.paper.datacomponent.DataComponentTypes
+import io.papermc.paper.datacomponent.item.Consumable
+import io.papermc.paper.datacomponent.item.FoodProperties
+import io.papermc.paper.datacomponent.item.consumable.ConsumeEffect
+import io.papermc.paper.datacomponent.item.consumable.ItemUseAnimation
 import io.papermc.paper.event.player.PlayerItemFrameChangeEvent
 import kr.oein.nongJang.NongJang
+import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.Component
 import org.bukkit.Material
 import org.bukkit.block.Block
@@ -18,9 +25,13 @@ import org.bukkit.event.hanging.HangingBreakEvent
 import org.bukkit.event.hanging.HangingPlaceEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.meta.components.FoodComponent
 import org.bukkit.persistence.PersistentDataType
+import org.bukkit.potion.PotionEffect
+import org.bukkit.potion.PotionEffectType
 import kotlin.math.min
 import kotlin.math.roundToInt
+
 
 enum class GrowingLevel {
     SEED,
@@ -237,6 +248,51 @@ class Grow(val nj: NongJang): Listener {
         meta.persistentDataContainer.set(FarmConfig.productType, PersistentDataType.STRING, productClass.id)
 
         itemStack.itemMeta = meta
+
+        if(level == HarvestedLevel.RAW || level == HarvestedLevel.ROTTEN) {
+            val builder = itemStack.getData(DataComponentTypes.CONSUMABLE)
+                ?.toBuilder()
+                ?: Consumable.consumable()
+
+            builder.animation(ItemUseAnimation.EAT)
+            builder.addEffect(
+                ConsumeEffect.applyStatusEffects(
+                    listOf(
+                        PotionEffect(
+                            PotionEffectType.INSTANT_DAMAGE,
+                            1,
+                            100
+                        )
+                    ),
+                    1.0f
+                )
+            )
+
+            itemStack.setData(DataComponentTypes.CONSUMABLE, builder.build())
+            itemStack.setData(
+                DataComponentTypes.FOOD,
+                FoodProperties.food()
+                    .nutrition(1)
+                    .saturation(1.0f)
+                    .canAlwaysEat(true)
+                    .build()
+            )
+        } else {
+            val builder = itemStack.getData(DataComponentTypes.CONSUMABLE)
+                ?.toBuilder()
+                ?: Consumable.consumable()
+
+            builder.animation(ItemUseAnimation.EAT)
+
+            itemStack.setData(DataComponentTypes.CONSUMABLE, builder.build())
+            itemStack.setData(
+                DataComponentTypes.FOOD,
+                FoodProperties.food()
+                    .nutrition(2)
+                    .saturation(2.4f)
+                    .build()
+            )
+        }
 
         return itemStack
     }
