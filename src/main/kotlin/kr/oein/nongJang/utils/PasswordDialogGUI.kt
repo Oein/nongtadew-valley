@@ -61,6 +61,13 @@ class PasswordDialogGUI(val nj: NongJang): InventoryGUI() {
 
     val authScope = nj.kvdb.loadScope("auth")
     override fun decorate(player: Player?) {
+        player?.playSound(
+            player.location,
+            "minecraft:custom.pw_input",
+            1.0f, // volume
+            1.0f  // pitch
+        )
+
         for(x in 3..5) {
             for(y in 2..5) {
                 val slot = y * 9 + x
@@ -77,8 +84,22 @@ class PasswordDialogGUI(val nj: NongJang): InventoryGUI() {
                                     // backspace
                                     if (passwordInput.isNotEmpty())
                                         passwordInput = passwordInput.dropLast(1)
-                                } else
-                                    passwordInput += if(number == 10) "*" else number.toString()
+
+                                    player?.playSound(
+                                        player.location,
+                                        "minecraft:custom.pw_remove",
+                                        1.0f, // volume
+                                        1.0f  // pitch
+                                    )
+                                } else {
+                                    passwordInput += if (number == 10) "*" else number.toString()
+                                    player?.playSound(
+                                        player.location,
+                                        "minecraft:custom.pw_input_char",
+                                        1.0f, // volume
+                                        1.0f  // pitch
+                                    )
+                                }
 
                                 p.sendMessage("현재 입력된 안전번호: $passwordInput")
                                 if (passwordInput.length == 4) {
@@ -107,9 +128,36 @@ class PasswordDialogGUI(val nj: NongJang): InventoryGUI() {
                                         );
                                         p.closeInventory()
                                         p.sendMessage(Component.text("안전번호가 확인되었습니다!", NamedTextColor.GREEN))
+
+                                        player.playSound(
+                                            player.location,
+                                            "minecraft:custom.correct_pw",
+                                            1.0f, // volume
+                                            1.0f  // pitch
+                                        )
+                                        player.playSound(
+                                            player.location,
+                                            "minecraft:custom.pw_correct_sfx",
+                                            1.0f, // volume
+                                            1.0f  // pitch
+                                        )
                                     } else {
                                         p.sendMessage(Component.text("안전번호가 일치하지 않습니다. 다시 시도해주세요.", NamedTextColor.RED))
-                                        p.closeInventory()
+                                        player.playSound(
+                                            player.location,
+                                            "minecraft:custom.wrong_pw",
+                                            1.0f, // volume
+                                            1.0f  // pitch
+                                        )
+                                        player.playSound(
+                                            player.location,
+                                            "minecraft:custom.pw_wrong_sfx",
+                                            1.0f, // volume
+                                            1.0f  // pitch
+                                        )
+
+                                        // reset input
+                                        passwordInput = ""
                                     }
                                 }
                             }

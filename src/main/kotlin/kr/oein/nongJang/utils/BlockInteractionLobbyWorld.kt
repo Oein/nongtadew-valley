@@ -26,6 +26,22 @@ class BlockInteractionLobbyWorld(val nj: NongJang): Listener {
 //        );
         player.teleport(nj.njCommands.lobbyWorld!!.spawnLocation.toCenterLocation().add(0.0, -0.5, 0.0));
         nj.guiManager.openGUI(PasswordDialogGUI(nj), player);
+
+//        player.playSound(
+//            player.location,
+//            "minecraft:custom.bgm_intro",
+//            0.5f, // volume
+//            1.0f  // pitch
+//        )
+//        // run after 0.5 seconds
+//        nj.server.scheduler.runTaskLater(nj, { ->
+//            player.playSound(
+//                player.location,
+//                "minecraft:custom.bgm_loop",
+//                0.5f, // volume
+//                1.0f  // pitch
+//            )
+//        }, 10L)
     }
 
     @EventHandler

@@ -117,7 +117,7 @@ class Grow(val nj: NongJang): Listener {
                     }
                 }
 
-                broadcast("Seed[$blockX, $blockZ] GrownLevel: $grownLevel, ShitLevel: $shitLevel")
+//                broadcast("Seed[$blockX, $blockZ] GrownLevel: $grownLevel, ShitLevel: $shitLevel")
 
                 val cbdItem = createCBDItem(
                     productType,
