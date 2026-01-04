@@ -24,6 +24,10 @@ abstract class InventoryGUI : InventoryHandler {
         }
     }
 
+    fun slot(x: Int, y: Int): Int {
+        return y * 9 + x
+    }
+
     override fun onClick(event: InventoryClickEvent) {
         event.isCancelled = true
         val slot = event.slot

@@ -5,7 +5,6 @@ import java.lang.Long.parseLong
 
 class MoneyManager(kvdb: KVDB) {
     val moneyScope = kvdb.loadScope("money")
-    val debitScope = kvdb.loadScope("debit")
 
     fun getMoney(player: Player): Long {
         moneyScope.get(player.uniqueId.toString())?.let {
@@ -26,26 +25,5 @@ class MoneyManager(kvdb: KVDB) {
     fun removeMoney(player: Player, amount: Long) {
         val currentMoney = getMoney(player)
         setMoney(player, currentMoney - amount)
-    }
-
-    fun getDebit(player: Player): Long {
-        debitScope.get(player.uniqueId.toString())?.let {
-            return parseLong(it.toString())
-        }
-        return 0L
-    }
-
-    fun setDebit(player: Player, amount: Long) {
-        debitScope.set(player.uniqueId.toString(), amount.toString())
-    }
-
-    fun addDebit(player: Player, amount: Long) {
-        val currentDebit = getDebit(player)
-        setDebit(player, currentDebit + amount)
-    }
-
-    fun removeDebit(player: Player, amount: Long) {
-        val currentDebit = getDebit(player)
-        setDebit(player, currentDebit - amount)
     }
 }

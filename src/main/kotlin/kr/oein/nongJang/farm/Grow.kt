@@ -1,6 +1,5 @@
 package kr.oein.nongJang.farm
 
-import io.papermc.paper.datacomponent.DataComponentType
 import io.papermc.paper.datacomponent.DataComponentTypes
 import io.papermc.paper.datacomponent.item.Consumable
 import io.papermc.paper.datacomponent.item.FoodProperties
@@ -8,7 +7,6 @@ import io.papermc.paper.datacomponent.item.consumable.ConsumeEffect
 import io.papermc.paper.datacomponent.item.consumable.ItemUseAnimation
 import io.papermc.paper.event.player.PlayerItemFrameChangeEvent
 import kr.oein.nongJang.NongJang
-import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.Component
 import org.bukkit.Material
 import org.bukkit.block.Block
@@ -25,7 +23,6 @@ import org.bukkit.event.hanging.HangingBreakEvent
 import org.bukkit.event.hanging.HangingPlaceEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemStack
-import org.bukkit.inventory.meta.components.FoodComponent
 import org.bukkit.persistence.PersistentDataType
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
@@ -464,7 +461,7 @@ class Grow(val nj: NongJang): Listener {
     }
 
     val scheduleInterval = 10
-    var leftTicks = FarmConfig.fullGrowTicks
+    var leftTicks = FarmConfig.FULL_GROW_TICKS
 
     fun scheduleGrowthHandling() {
         nj.server.scheduler.runTaskTimer(
@@ -472,7 +469,7 @@ class Grow(val nj: NongJang): Listener {
             { ->
                 if (leftTicks <= 0) {
                     handleGrowth()
-                    leftTicks = FarmConfig.fullGrowTicks
+                    leftTicks = FarmConfig.FULL_GROW_TICKS
                 } else {
                     leftTicks -= scheduleInterval
                 }

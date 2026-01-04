@@ -27,7 +27,6 @@ class PurchaseNongJangGUI(val nj: NongJang, val player: Player, val centerX: Int
     }
 
     override fun decorate(player: Player?) {
-        nj.logger.info { "$centerX $centerZ" }
         // ____UP____
         // |         |
         // |         | <- viewHeight

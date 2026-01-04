@@ -36,6 +36,7 @@ class ChunkManager(val nj: NongJang) {
     val ownerScope = kvdb.loadScope("chunks-owner")
     val soilScope = kvdb.loadScope("chunks-soil")
     val myChunksScope = kvdb.loadScope("player-mychunks")
+    val randomizedCountScope = kvdb.loadScope("chunks-randomized-count")
 
     fun getTier(x: Int, z: Int): Int {
         val dist = max(abs(x), abs(z))
@@ -200,6 +201,27 @@ class ChunkManager(val nj: NongJang) {
     fun getSoil(x: Int, z: Int): Int? {
         val key = "${x},${z}"
         return soilScope.get(key) as Int?
+    }
+
+    fun resetTemperature(x: Int, z: Int) {
+        val key = "${x},${z}"
+        val newTemp = genTemperature()
+        tempScore.set(key, newTemp)
+        incrementRandomizedCount(x, z)
+    }
+    fun resetHumidity(x: Int, z: Int) {
+        val key = "${x},${z}"
+        val newHumidity = genHumidity()
+        humidityScope.set(key, newHumidity)
+        incrementRandomizedCount(x, z)
+    }
+    fun resetSoil(x: Int, z: Int) {
+        val key = "${x},${z}"
+        val tier = getTier(x, z)
+        val (soilFrom, soilTo) = getSoilRange(tier)
+        val newSoil = (soilFrom..soilTo).random()
+        soilScope.set(key, newSoil)
+        incrementRandomizedCount(x, z)
     }
 
     fun getChunkData(x: Int, z: Int): Map<String, Int?> {
@@ -381,5 +403,20 @@ class ChunkManager(val nj: NongJang) {
         ownerScope.save()
         myChunksScope.clear()
         myChunksScope.save()
+    }
+
+    fun getRandomizedCount(x: Int, z: Int): Int {
+        val key = "${x},${z}"
+        val count = randomizedCountScope.get(key) as Int?
+        return count ?: 0
+    }
+    fun incrementRandomizedCount(x: Int, z: Int) {
+        val key = "${x},${z}"
+        val count = getRandomizedCount(x, z)
+        randomizedCountScope.set(key, count + 1)
+    }
+    fun clearRandomizedCount(x: Int, z: Int) {
+        val key = "${x},${z}"
+        randomizedCountScope.remove(key)
     }
 }

@@ -8,11 +8,14 @@ import kr.oein.nongJang.http.HTTPServer
 import kr.oein.nongJang.kvdb.ChunkManager
 import kr.oein.nongJang.kvdb.KVDB
 import kr.oein.nongJang.kvdb.MoneyManager
+import kr.oein.nongJang.shiftf.PlayerWildTP
+import kr.oein.nongJang.shiftf.ProductPrice
 import kr.oein.nongJang.utils.Scoreboard
 import kr.oein.nongJang.shiftf.ShiftF
 import kr.oein.nongJang.utils.BlockInteractionLobbyWorld
 import kr.oein.nongJang.utils.BlockInteractionNongjnagWorld
 import kr.oein.nongJang.utils.Bossbar
+import kr.oein.nongJang.utils.InitialMoney
 import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -30,11 +33,14 @@ class NongJang : JavaPlugin() {
     val grow = Grow(this)
     val bossbar = Bossbar(this)
     val blockInteractionLobbyWorld = BlockInteractionLobbyWorld(this)
+    val playerWildTP = PlayerWildTP(this)
+    val productPrice = ProductPrice(this)
 
     override fun onEnable() {
         Bukkit.getPluginManager().registerEvents(guiListener, this)
         Bukkit.getPluginManager().registerEvents(ShiftF(this), this)
         Bukkit.getPluginManager().registerEvents(Scoreboard(this), this)
+        Bukkit.getPluginManager().registerEvents(InitialMoney(this), this)
         Bukkit.getPluginManager().registerEvents(BlockInteractionNongjnagWorld(this), this)
         Bukkit.getPluginManager().registerEvents(blockInteractionLobbyWorld, this)
         Bukkit.getPluginManager().registerEvents(grow, this)
@@ -46,6 +52,8 @@ class NongJang : JavaPlugin() {
 
         grow.scheduleGrowthHandling()
         bossbar.updateSchedule()
+        playerWildTP.scheduleCacheAllPlayersLastWildLocation()
+        productPrice.schedulePriceRefresh()
 
         httpServer.start()
     }

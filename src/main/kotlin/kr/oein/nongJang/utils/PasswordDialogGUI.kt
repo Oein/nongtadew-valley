@@ -59,6 +59,12 @@ class PasswordDialogGUI(val nj: NongJang): InventoryGUI() {
         listOf(0, 10, 11)
     )
 
+    fun showPlayerTutorialMessage(player: Player) {
+        player.sendMessage(Component.text("#### 농타듀벨리 ###", NamedTextColor.GREEN))
+        player.sendMessage(Component.text("농타듀벨리에 오신것을 환영합니다."))
+        player.sendMessage(Component.text("Shift-F(웅크리기+왼손들기)를 통해 메뉴에 접근할 수 있습니다."))
+    }
+
     val authScope = nj.kvdb.loadScope("auth")
     override fun decorate(player: Player?) {
         player?.playSound(
@@ -95,7 +101,7 @@ class PasswordDialogGUI(val nj: NongJang): InventoryGUI() {
                                     passwordInput += if (number == 10) "*" else number.toString()
                                     player?.playSound(
                                         player.location,
-                                        "minecraft:custom.pw_input_char",
+                                        "minecraft:entity.experience_orb.pickup",
                                         1.0f, // volume
                                         1.0f  // pitch
                                     )
@@ -117,6 +123,7 @@ class PasswordDialogGUI(val nj: NongJang): InventoryGUI() {
                                         // close gui
                                         p.closeInventory()
                                         p.sendMessage(Component.text("안전번호가 설정되었습니다!", NamedTextColor.GREEN))
+                                        showPlayerTutorialMessage(player)
                                     }
                                     else if(passwordInput == pw){
                                         nj.blockInteractionLobbyWorld.nonProcessedUsers.remove(player);
@@ -135,12 +142,7 @@ class PasswordDialogGUI(val nj: NongJang): InventoryGUI() {
                                             1.0f, // volume
                                             1.0f  // pitch
                                         )
-                                        player.playSound(
-                                            player.location,
-                                            "minecraft:custom.pw_correct_sfx",
-                                            1.0f, // volume
-                                            1.0f  // pitch
-                                        )
+                                        showPlayerTutorialMessage(player)
                                     } else {
                                         p.sendMessage(Component.text("안전번호가 일치하지 않습니다. 다시 시도해주세요.", NamedTextColor.RED))
                                         player.playSound(
@@ -149,12 +151,12 @@ class PasswordDialogGUI(val nj: NongJang): InventoryGUI() {
                                             1.0f, // volume
                                             1.0f  // pitch
                                         )
-                                        player.playSound(
-                                            player.location,
-                                            "minecraft:custom.pw_wrong_sfx",
-                                            1.0f, // volume
-                                            1.0f  // pitch
-                                        )
+//                                        player.playSound(
+//                                            player.location,
+//                                            "minecraft:custom.pw_wrong_sfx",
+//                                            1.0f, // volume
+//                                            1.0f  // pitch
+//                                        )
 
                                         // reset input
                                         passwordInput = ""

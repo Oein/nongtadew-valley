@@ -23,7 +23,7 @@ class Bossbar(val nj: NongJang) {
     fun updateSchedule() {
         nj.server.scheduler.scheduleSyncRepeatingTask(nj, {
             activeBar.name(Component.text("성장까지 남은 시간 : ${nj.grow.leftTicks.toFloat() / 20.0f}초"))
-            activeBar.progress(nj.grow.leftTicks.toFloat() / FarmConfig.fullGrowTicks.toFloat())
+            activeBar.progress(nj.grow.leftTicks.toFloat() / FarmConfig.FULL_GROW_TICKS.toFloat())
             for (player in nj.server.onlinePlayers) {
                 handlePlayer(player)
             }

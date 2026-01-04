@@ -11,7 +11,7 @@ fun growFunctionMaker(needTemp: Double, needWet: Double, needMin: Double = 24.0)
         // FarmConfig.fullGrowTicks 틱 마다 실행
         // FarmConfig.fullGrowTicks / 20 초 마다 실행
         // needTime 분 걸리려면 몇 번 실행해야 하는가?
-        max(((FarmConfig.fullGrowTicks / (20.0 * 60.0 * needTime)) * (soil / 100.0) * 100.0) + (Math.random() - 0.5), 0.0)
+        max(((FarmConfig.FULL_GROW_TICKS / (20.0 * 60.0 * needTime)) * (soil / 100.0) * 100.0) + (Math.random() - 0.5), 0.0)
     }
 }
 
@@ -34,7 +34,12 @@ object FarmConfig {
             seedGuiCbd = "carrot_seed_gui",
 
             calculateGrow = growFunctionMaker(17.5, 75.0),
-            calculateShit = shitFunctionMaker(17.5, 75.0)
+            calculateShit = shitFunctionMaker(17.5, 75.0),
+            waterReq = 25,
+
+            seedPrice = 500L,
+            priceMin = 1000L,
+            priceMax = 1400L
         ),
         Product(
             id = "sugarcane",
@@ -47,15 +52,37 @@ object FarmConfig {
             seedGuiCbd = "sugarcane_seed_gui",
 
             calculateGrow = growFunctionMaker(26.0, 77.5),
-            calculateShit = shitFunctionMaker(26.0, 77.5)
+            calculateShit = shitFunctionMaker(26.0, 77.5),
+            waterReq = 125,
+
+            seedPrice = 1650L,
+            priceMin = 3300L,
+            priceMax = 4000L
+        ),
+        Product(
+            id = "corn",
+            name = "옥수수",
+
+            seedCbd = "corn_seed",
+            growingCbd = "corn_growing",
+            grownCbd = "corn_grown",
+            shitCbd = "corn_shit",
+            seedGuiCbd = "corn_seed_gui",
+
+            calculateGrow = growFunctionMaker(25.0, 70.0),
+            calculateShit = shitFunctionMaker(25.0, 70.0),
+            waterReq = 60,
+
+            seedPrice = 800L,
+            priceMin = 1600L,
+            priceMax = 2000L
         )
     )
     val productType = NamespacedKey("nongjang", "product_type")
     val grownLevel = NamespacedKey("nongjang", "grown_level")
     val shitLevel = NamespacedKey("nongjang", "shit_level")
 
-    const val fullGrowTicks = 20 * 60 // 1 min to full grow
-
+    const val FULL_GROW_TICKS = 20 * 60 // 1 min to full grow
 
     val farmlandBlocks = listOf(
         Material.RED_WOOL,

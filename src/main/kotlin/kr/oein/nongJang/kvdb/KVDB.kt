@@ -35,4 +35,8 @@ class KVDB(val plugin: JavaPlugin) {
     fun clear(scope: String) {
         loadScope(scope).clear()
     }
+
+    fun lop() {
+        TODO("Not yet implemented")
+    }
 }

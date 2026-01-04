@@ -7,6 +7,7 @@ import dev.jorel.commandapi.arguments.StringArgument
 import dev.jorel.commandapi.executors.CommandExecutor
 import kr.oein.nongJang.NongJang
 import kr.oein.nongJang.farm.FarmConfig
+import kr.oein.nongJang.kvdb.KVDBScope
 import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit
 import org.bukkit.GameRule
@@ -107,9 +108,12 @@ object NongJangCommands {
         return lobbyWorld
     }
 
+    var shiftf_cooldown: KVDBScope? = null
+
     fun register(nj: NongJang) {
         // store plugin reference for logging and later use
         this.plugin = nj
+        this.shiftf_cooldown = nj.kvdb.loadScope("shiftf_cooldown")
         nongjangWorld = ensureNongJangWorld()
         CommandAPICommand("admin_nj")
             .withSubcommand(
@@ -202,30 +206,24 @@ object NongJangCommands {
                                 sender.sendMessage(Component.text("Added ₩$amount to ${targetPlayer.name}."))
                             })
                     )
-            )
-            .withSubcommand(
-                CommandAPICommand("debit")
-                    .withPermission(CommandPermission.OP)
                     .withSubcommand(
-                        CommandAPICommand("add")
+                        CommandAPICommand("get")
                             .withArguments(dev.jorel.commandapi.arguments.PlayerArgument("player"))
-                            .withArguments(dev.jorel.commandapi.arguments.LongArgument("amount"))
                             .executes(CommandExecutor { sender, arguments ->
                                 val targetPlayer = arguments[0] as Player
-                                val amount = arguments[1] as Long
-                                nj.moneyManager.addDebit(targetPlayer, amount)
-                                sender.sendMessage(Component.text("Added debit ₩$amount to ${targetPlayer.name}."))
+                                val balance = nj.moneyManager.getMoney(targetPlayer)
+                                sender.sendMessage(Component.text("${targetPlayer.name} has ₩$balance."))
                             })
                     )
                     .withSubcommand(
-                        CommandAPICommand("remove")
+                        CommandAPICommand("set")
                             .withArguments(dev.jorel.commandapi.arguments.PlayerArgument("player"))
                             .withArguments(dev.jorel.commandapi.arguments.LongArgument("amount"))
                             .executes(CommandExecutor { sender, arguments ->
                                 val targetPlayer = arguments[0] as Player
                                 val amount = arguments[1] as Long
-                                nj.moneyManager.removeDebit(targetPlayer, amount)
-                                sender.sendMessage(Component.text("Removed debit ₩$amount from ${targetPlayer.name}."))
+                                nj.moneyManager.setMoney(targetPlayer, amount)
+                                sender.sendMessage(Component.text("Set ${targetPlayer.name}'s balance to ₩$amount."))
                             })
                     )
             )
@@ -329,6 +327,39 @@ object NongJangCommands {
                                 sender.sendMessage(Component.text("Lobby world is ensured to exist."))
                             })
                     )
+            )
+            .withSubcommand(
+                CommandAPICommand("shopprice")
+                    .withPermission(CommandPermission.OP)
+                    .executes(CommandExecutor { sender, _ ->
+                        nj.productPrice.refreshAllPrices()
+                        sender.sendMessage(Component.text("Shop prices reloaded."))
+                    })
+            )
+            .withSubcommand(
+                CommandAPICommand("resetcoolddown")
+                    .withPermission(CommandPermission.OP)
+                    .withArguments(
+                        dev.jorel.commandapi.arguments.PlayerArgument("player")
+                    )
+                    .executes(CommandExecutor { sender, arguments ->
+                        val targetPlayer = arguments[0] as Player
+                        sender.sendMessage(Component.text("Reset Shift+F teleport cooldown for ${targetPlayer.name}."))
+
+                        // iron_hoe_harvest, diamond_hoe_harvest, netherite_hoe_harvest
+                        // in scope shiftf_cooldown
+                        //
+                        val keys = listOf(
+                            "iron_hoe_harvest",
+                            "diamond_hoe_harvest_replant",
+                            "netherite_hoe_harvest_replant"
+                        )
+                        for(key in keys)
+                        {
+                            val cooldownKey = "${targetPlayer.uniqueId}__$key"
+                            shiftf_cooldown?.set(cooldownKey, 0L)
+                        }
+                    })
             )
             .register()
     }

@@ -16,5 +16,9 @@ data class Product(
     },
     val calculateShit: (temperature: Double, soil: Double, wet: Double) -> Double = { _, _, _ ->
         Math.random() * 10.0
-    }
+    },
+    val waterReq: Int = 0,
+    val seedPrice: Long = 999999999L,
+    val priceMin: Long = 0L,
+    val priceMax: Long = 0L
 )
