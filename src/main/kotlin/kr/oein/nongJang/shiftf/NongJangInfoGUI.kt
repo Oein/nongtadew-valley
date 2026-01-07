@@ -3,7 +3,7 @@ package kr.oein.nongJang.shiftf
 import kr.oein.interchest.InventoryButton
 import kr.oein.interchest.InventoryGUI
 import kr.oein.nongJang.NongJang
-import kr.oein.nongJang.utils.GetRandomizingPricing
+import kr.oein.nongJang.utils.GetPricing
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
@@ -21,7 +21,7 @@ class NongJangInfoGUI(val nj: NongJang, val chunkX: Int, val chunkZ: Int): Inven
     val randomizedCount = nj.chunkManager.getRandomizedCount(chunkX, chunkZ)
     val landPrice = nj.chunkManager.getPrice(chunkX, chunkZ)
     val isValidFarm = njTemperature != null && njHumidity != null && landPrice != null && njSoil != null
-    val randomizePricing = GetRandomizingPricing.getRandomizingPricing(randomizedCount, landPrice?: 0)
+    val randomizePricing = GetPricing.getRandomizingPricing(randomizedCount, landPrice?: 0)
 
     @Suppress("DEPRECATION")
     override fun createInventory(): org.bukkit.inventory.Inventory {

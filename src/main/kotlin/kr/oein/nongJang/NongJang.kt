@@ -21,7 +21,7 @@ import org.bukkit.plugin.java.JavaPlugin
 
 class NongJang : JavaPlugin() {
     var kvdb = KVDB(this)
-    val httpServer = HTTPServer(this)
+//    val httpServer = HTTPServer(this)
 
     val moneyManager = MoneyManager(kvdb)
     val chunkManager = ChunkManager(this)
@@ -35,6 +35,8 @@ class NongJang : JavaPlugin() {
     val blockInteractionLobbyWorld = BlockInteractionLobbyWorld(this)
     val playerWildTP = PlayerWildTP(this)
     val productPrice = ProductPrice(this)
+
+    val boughtCntScope = kvdb.loadScope("bought_cnt")
 
     override fun onEnable() {
         Bukkit.getPluginManager().registerEvents(guiListener, this)
@@ -55,7 +57,7 @@ class NongJang : JavaPlugin() {
         playerWildTP.scheduleCacheAllPlayersLastWildLocation()
         productPrice.schedulePriceRefresh()
 
-        httpServer.start()
+//        httpServer.start()
     }
 
     override fun onLoad() {
@@ -65,6 +67,6 @@ class NongJang : JavaPlugin() {
 
     override fun onDisable() {
         bossbar.hideAll()
-        httpServer.stop()
+//        httpServer.stop()
     }
 }

@@ -292,15 +292,6 @@ object NongJangCommands {
                     })
             )
             .withSubcommand(
-                CommandAPICommand("reloadhttp")
-                    .withPermission(CommandPermission.OP)
-                    .executes(CommandExecutor { sender, _ ->
-                        nj.httpServer.fm.calculateGrownStateForAllPlayers()
-
-                        sender.sendMessage(Component.text("Recalculated farmland states for all players."))
-                    })
-            )
-            .withSubcommand(
                 CommandAPICommand("lobby")
                     .executes(CommandExecutor { sender, _ ->
                         if(sender !is Player) {
@@ -360,6 +351,98 @@ object NongJangCommands {
                             shiftf_cooldown?.set(cooldownKey, 0L)
                         }
                     })
+            )
+            .withSubcommand(
+                CommandAPICommand("nongjang")
+                    .withPermission(CommandPermission.OP)
+                    .withSubcommand(
+                        CommandAPICommand("getownchunks")
+                            .withArguments(
+                                dev.jorel.commandapi.arguments.PlayerArgument("player")
+                            )
+                            .executes(CommandExecutor { sender, arguments ->
+                                val targetPlayer = arguments[0] as Player
+                                val ownedChunks = nj.chunkManager.getMyChunks(targetPlayer)
+                                sender.sendMessage(
+                                    Component.text("${targetPlayer.name} owns ${ownedChunks.size} chunks:\n")
+                                        .append(
+                                            ownedChunks.map { chunk ->
+                                                Component.text(" - ${
+                                                    nj.chunkManager.getTier(chunk.first, chunk.second)
+                                                }T(${chunk.first}, ${chunk.second}) - ${
+                                                    nj.chunkManager.getTemperature(chunk.first, chunk.second)
+                                                }'C, ${
+                                                    nj.chunkManager.getHumidity(chunk.first, chunk.second)
+                                                }%H, ${
+                                                    nj.chunkManager.getSoil(chunk.first, chunk.second)
+                                                }%S\n")
+                                            }.reduce { acc, component -> acc.append(component) }
+                                        )
+                                )
+                            })
+                    )
+                    .withSubcommand(
+                        CommandAPICommand("getowner")
+                            .withArguments(
+                                dev.jorel.commandapi.arguments.IntegerArgument("chunkX")
+                            )
+                            .withArguments(
+                                dev.jorel.commandapi.arguments.IntegerArgument("chunkY")
+                            )
+                            .executes(CommandExecutor { sender, arguments ->
+                                val chunkX = arguments[0] as Int
+                                val chunkZ = arguments[1] as Int
+                                val owner = nj.chunkManager.getOwner(chunkX, chunkZ)
+                                if(owner == null) {
+                                    sender.sendMessage(
+                                        Component.text("Chunk ($chunkX, $chunkZ) has no owner.")
+                                    )
+                                } else {
+                                    sender.sendMessage(
+                                        Component.text("Chunk ($chunkX, $chunkZ) is owned by ${owner.name}(${owner.uniqueId}).")
+                                    )
+                                }
+                            })
+                    )
+                    .withSubcommand(
+                        CommandAPICommand("removeowner")
+                            .withArguments(
+                                dev.jorel.commandapi.arguments.IntegerArgument("chunkX")
+                            )
+                            .withArguments(
+                                dev.jorel.commandapi.arguments.IntegerArgument("chunkY")
+                            )
+                            .executes(CommandExecutor { sender, arguments ->
+                                val chunkX = arguments[0] as Int
+                                val chunkZ = arguments[1] as Int
+                                nj.chunkManager.removeOwner(chunkX, chunkZ)
+                                sender.sendMessage(
+                                    Component.text("Removed owner from chunk ($chunkX, $chunkZ).")
+                                )
+                            })
+                    )
+                    .withSubcommand(
+                        CommandAPICommand("setowner")
+                            .withArguments(
+                                dev.jorel.commandapi.arguments.IntegerArgument("chunkX")
+                            )
+                            .withArguments(
+                                dev.jorel.commandapi.arguments.IntegerArgument("chunkY")
+                            )
+                            .withArguments(
+                                dev.jorel.commandapi.arguments.PlayerArgument("player")
+                            )
+                            .executes(CommandExecutor { sender, arguments ->
+                                val chunkX = arguments[0] as Int
+                                val chunkZ = arguments[1] as Int
+                                val player = arguments[2] as Player
+                                nj.chunkManager.setOwner(chunkX, chunkZ, player)
+                                sender.sendMessage(
+                                    Component.text("Set owner of chunk ($chunkX, $chunkZ) to ${player.name}.")
+                                )
+                            })
+                    )
+
             )
             .register()
     }

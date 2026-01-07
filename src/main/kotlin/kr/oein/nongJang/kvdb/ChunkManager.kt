@@ -180,6 +180,7 @@ class ChunkManager(val nj: NongJang) {
         val key = "${x},${z}"
         ownerScope.set(key, player.uniqueId.toString())
         add2myChunks(x, z, player)
+        ensureBarrier(x, z)
     }
     fun removeOwner(x: Int, z: Int) {
         val key = "${x},${z}"
@@ -188,6 +189,7 @@ class ChunkManager(val nj: NongJang) {
             removeFromMyChunks(x, z, owner)
         }
         ownerScope.remove(key)
+        ensureBarrier(x, z)
     }
 
     fun getTemperature(x: Int, z: Int): Int? {
@@ -233,6 +235,133 @@ class ChunkManager(val nj: NongJang) {
             "humidity" to humidity,
             "soil" to soil
         )
+    }
+
+    fun ensureBarrier(x: Int, z: Int) {
+        val njWorld = nj.njCommands.nongjangWorld!!
+        val owner = getOwner(x, z) ?: return
+
+        // build barrier
+        // left
+        var ownerOther = getOwner(x - 1, z)
+        if(ownerOther == null || ownerOther.uniqueId != owner.uniqueId) {
+            for (zd in 0..14) {
+                for (y in 1..254) {
+                    val material = when (y) {
+                        in 1..4 -> org.bukkit.Material.DIRT
+                        5 -> org.bukkit.Material.GRASS_BLOCK
+                        else -> org.bukkit.Material.BARRIER
+                    }
+                    njWorld.getBlockAt((x * 16), y, (z * 16) + zd).type = material
+                }
+            }
+        }
+
+        // right
+        ownerOther = getOwner(x + 1, z)
+        if(ownerOther == null || ownerOther.uniqueId != owner.uniqueId) {
+            for (zd in 0..14) {
+                for (y in 1..254) {
+                    val material = when (y) {
+                        in 1..4 -> org.bukkit.Material.DIRT
+                        5 -> org.bukkit.Material.GRASS_BLOCK
+                        else -> org.bukkit.Material.BARRIER
+                    }
+                    njWorld.getBlockAt((x * 16) + 15, y, (z * 16) + zd).type = material
+                }
+            }
+        }
+
+        // up
+        ownerOther = getOwner(x, z - 1)
+        if(ownerOther == null || ownerOther.uniqueId != owner.uniqueId) {
+            for (xd in 0..14) {
+                for (y in 1..254) {
+                    val material = when (y) {
+                        in 1..4 -> org.bukkit.Material.DIRT
+                        5 -> org.bukkit.Material.GRASS_BLOCK
+                        else -> org.bukkit.Material.BARRIER
+                    }
+                    njWorld.getBlockAt((x * 16) + xd, y, (z * 16)).type = material
+                }
+            }
+        }
+
+        // down
+        ownerOther = getOwner(x, z + 1)
+        if(ownerOther == null || ownerOther.uniqueId != owner.uniqueId) {
+            for (xd in 0..14) {
+                for (y in 1..254) {
+                    val material = when (y) {
+                        in 1..4 -> org.bukkit.Material.DIRT
+                        5 -> org.bukkit.Material.GRASS_BLOCK
+                        else -> org.bukkit.Material.BARRIER
+                    }
+                    njWorld.getBlockAt((x * 16) + xd, y, (z * 16) + 15).type = material
+                }
+            }
+        }
+
+        // corners
+        // left-up
+        ownerOther = getOwner(x - 1, z)
+        val ownerOther2 = getOwner(x, z - 1)
+        if((ownerOther == null || ownerOther.uniqueId != owner.uniqueId) &&
+           (ownerOther2 == null || ownerOther2.uniqueId != owner.uniqueId)) {
+            for (y in 1..254) {
+                val material = when (y) {
+                    in 1..4 -> org.bukkit.Material.DIRT
+                    5 -> org.bukkit.Material.GRASS_BLOCK
+                    else -> org.bukkit.Material.BARRIER
+                }
+                njWorld.getBlockAt((x * 16), y, (z * 16)).type = material
+            }
+        }
+
+        // right-up
+        ownerOther = getOwner(x + 1, z)
+        val ownerOther3 = getOwner(x, z - 1)
+        if((ownerOther == null || ownerOther.uniqueId != owner.uniqueId) &&
+           (ownerOther3 == null || ownerOther3.uniqueId != owner.uniqueId)) {
+            for (y in 1..254) {
+                val material = when (y) {
+                    in 1..4 -> org.bukkit.Material.DIRT
+                    5 -> org.bukkit.Material.GRASS_BLOCK
+                    else -> org.bukkit.Material.BARRIER
+                }
+                njWorld.getBlockAt((x * 16) + 15, y, (z * 16)).type = material
+            }
+        }
+
+        // left-down
+        ownerOther = getOwner(x - 1, z)
+        val ownerOther4 = getOwner(x, z + 1)
+        if((ownerOther == null || ownerOther.uniqueId != owner.uniqueId) &&
+           (ownerOther4 == null || ownerOther4.uniqueId != owner.uniqueId)) {
+            for (y in 1..254) {
+                val material = when (y) {
+                    in 1..4 -> org.bukkit.Material.DIRT
+                    5 -> org.bukkit.Material.GRASS_BLOCK
+                    else -> org.bukkit.Material.BARRIER
+                }
+                njWorld.getBlockAt((x * 16), y, (z * 16) + 15).type = material
+            }
+        }
+
+        // right-down
+        ownerOther = getOwner(x + 1, z)
+        val ownerOther5 = getOwner(x, z + 1)
+        if((ownerOther == null || ownerOther.uniqueId != owner.uniqueId) &&
+           (ownerOther5 == null || ownerOther5.uniqueId != owner.uniqueId)) {
+            for (y in 1..254) {
+                val material = when (y) {
+                    in 1..4 -> org.bukkit.Material.DIRT
+                    5 -> org.bukkit.Material.GRASS_BLOCK
+                    else -> org.bukkit.Material.BARRIER
+                }
+                njWorld.getBlockAt((x * 16) + 15, y, (z * 16) + 15).type = material
+            }
+        }
     }
 
     val moneyManager = nj.moneyManager

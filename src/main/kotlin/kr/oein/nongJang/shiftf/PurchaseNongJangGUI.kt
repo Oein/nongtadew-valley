@@ -4,6 +4,7 @@ import kr.oein.interchest.InventoryButton
 import kr.oein.interchest.InventoryGUI
 import kr.oein.nongJang.NongJang
 import kr.oein.nongJang.farm.FarmConfig
+import kr.oein.nongJang.utils.GetPricing
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.title.Title
@@ -319,7 +320,11 @@ class PurchaseNongJangGUI(val nj: NongJang, val player: Player, val centerX: Int
                 val worldZ = centerZ + y
                 val owner = nj.chunkManager.getOwner(worldX, worldZ)
                 val isPurchased = owner != null
-                val price = nj.chunkManager.getPrice(worldX, worldZ) ?: continue
+                val priceOriginal = nj.chunkManager.getPrice(worldX, worldZ) ?: continue
+                val tier = nj.chunkManager.getTier(worldX, worldZ)
+                val purcCntKey = "${player?.uniqueId.toString()}_$tier"
+                val getPlayerBought = nj.boughtCntScope.get(purcCntKey)?.toString()?.toInt() ?: 0
+                val price = GetPricing.getPurchasingPricing(getPlayerBought, priceOriginal)
 
                 this.addButton(slot,
                     InventoryButton()
@@ -396,6 +401,7 @@ class PurchaseNongJangGUI(val nj: NongJang, val player: Player, val centerX: Int
                                 p.sendMessage {
                                     Component.text("농장 구입에 성공했습니다! (${worldX}, ${worldZ})", NamedTextColor.GREEN)
                                 }
+                                nj.boughtCntScope.set(purcCntKey, (getPlayerBought + 1).toString())
                             } else {
                                 p.sendMessage {
                                     Component.text("농장 구입에 실패했습니다. 잔액을 확인해주세요. (${worldX}, ${worldZ})", NamedTextColor.RED)
