@@ -76,6 +76,42 @@ object FarmConfig {
             seedPrice = 800L,
             priceMin = 1600L,
             priceMax = 2000L
+        ),
+        Product(
+            id = "star",
+            name = "스타푸르츠",
+
+            seedCbd = "star_seed",
+            growingCbd = "star_growing",
+            grownCbd = "star_grown",
+            shitCbd = "star_shit",
+            seedGuiCbd = "star_seed_gui",
+
+            calculateGrow = growFunctionMaker(27.5, 67.5),
+            calculateShit = shitFunctionMaker(27.5, 67.5),
+            waterReq = 50,
+
+            seedPrice = 3500L,
+            priceMin = 7000L,
+            priceMax = 7777L
+        ),
+        Product(
+            id = "potato",
+            name = "감자",
+
+            seedCbd = "potato_seed",
+            growingCbd = "potato_growing",
+            grownCbd = "potato_grown",
+            shitCbd = "potato_shit",
+            seedGuiCbd = "potato_seed_gui",
+
+            calculateGrow = growFunctionMaker(17.5, 85.0),
+            calculateShit = shitFunctionMaker(17.5, 85.0),
+            waterReq = 40,
+
+            seedPrice = 250L,
+            priceMin = 450L,
+            priceMax = 650L
         )
     )
     val productType = NamespacedKey("nongjang", "product_type")
